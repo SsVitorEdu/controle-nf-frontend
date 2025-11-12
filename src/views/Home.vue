@@ -15,7 +15,7 @@
           <cv-column :sm="4" :md="4" :lg="4">
             <router-link to="/processo" class="tile-link">
               <cv-tile class="nav-tile">
-                Processo <Launch class="tile-icon" />
+                Processo <RepoArtifact class="tile-icon" />
               </cv-tile>
             </router-link>
           </cv-column>
@@ -32,14 +32,14 @@
           <cv-column :sm="4" :md="4" :lg="4">
             <router-link to="/secretaria" class="tile-link">
               <cv-tile class="nav-tile">
-                Secretária <UserAvatar class="tile-icon" />
+                Secretária <Building class="tile-icon" />
               </cv-tile>
             </router-link>
           </cv-column>
           <cv-column :sm="4" :md="4" :lg="4">
              <router-link to="/fornecedor" class="tile-link">
               <cv-tile class="nav-tile">
-                Fornecedor <Building class="tile-icon" />
+                Fornecedor <Delivery class="tile-icon" />
               </cv-tile>
             </router-link>
           </cv-column>
@@ -53,9 +53,9 @@
 <script>
 
 import Document from '@carbon/icons-vue/es/document/32';
-import Launch from '@carbon/icons-vue/es/launch/32';
+import RepoArtifact from '@carbon/icons-vue/es/repo--artifact/32';
 import DocumentBlank from '@carbon/icons-vue/es/document--blank/32';
-import UserAvatar from '@carbon/icons-vue/es/user--avatar/32';
+import Delivery from '@carbon/icons-vue/es/delivery/32';
 import Building from '@carbon/icons-vue/es/building/32';
 
 export default {
@@ -63,9 +63,9 @@ export default {
   components: {
 
     Document,
-    Launch,
+    RepoArtifact,
     DocumentBlank,
-    UserAvatar,
+    Delivery,
     Building
   }
 }
