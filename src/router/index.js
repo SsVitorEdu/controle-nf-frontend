@@ -1,7 +1,8 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import store from '../store' // 👈 IMPORTA A STORE
+import store from '../store' 
 import LoginView from '../views/Login.vue'
+import HomeView from '../views/Home.vue' // Importar o Home
 
 const routes = [
   {
@@ -12,9 +13,43 @@ const routes = [
   {
     path: '/home',
     name: 'home',
-    component: () => import('../views/Home.vue'),
+    component: HomeView, // Usar o componente importado
     meta: { requiresAuth: true } 
+  },
+  
+  // --- Adicionando as novas rotas do Figma ---
+  {
+    path: '/oficio',
+    name: 'oficio',
+    // Vamos criar o componente Oficio.vue logo abaixo
+    component: () => import('../views/Oficio.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/processo',
+    name: 'processo',
+    component: () => import('../views/Processo.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/nota-fiscal',
+    name: 'nota-fiscal',
+    component: () => import('../views/NotaFiscal.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/secretaria',
+    name: 'secretaria',
+    component: () => import('../views/Secretaria.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/fornecedor',
+    name: 'fornecedor',
+    component: () => import('../views/Fornecedor.vue'),
+    meta: { requiresAuth: true }
   }
+  // --- Fim das novas rotas ---
 ]
 
 const router = createRouter({
@@ -22,11 +57,10 @@ const router = createRouter({
   routes
 })
 
-// O guarda de rotas usa a store importada
+// A "Guarda de Rota"
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    // Agora 'store.state.user' vai funcionar
-    if (!store.state.user) { 
+    if (!store.state.user) {
       next({ name: 'login' })
     } else {
       next() 
