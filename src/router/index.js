@@ -1,6 +1,6 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import store from '../store' 
+import store from '../store' // 👈 IMPORTA A STORE
 import LoginView from '../views/Login.vue'
 
 const routes = [
@@ -22,9 +22,11 @@ const router = createRouter({
   routes
 })
 
+// O guarda de rotas usa a store importada
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!store.state.user) {
+    // Agora 'store.state.user' vai funcionar
+    if (!store.state.user) { 
       next({ name: 'login' })
     } else {
       next() 
