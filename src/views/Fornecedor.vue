@@ -17,7 +17,7 @@
             <cv-text-input label="CNPJ" v-model.trim="fornecedorModel.cnpj" placeholder="Digite o CNPJ da empresa" />
           </cv-column>
           <cv-column :lg="3">
-            <cv-text-input label="Nome da empresa" v-model.trim="fornecedorModel.nome" placeholder="Digite o nome da empresa" />
+            <cv-text-input label="Nome da empresa" v-model.trim="fornecedorModel.nomeEmpresa" placeholder="Digite o nome da empresa" />
           </cv-column>
           <cv-column :lg="3">
             <cv-text-input label="ID" v-model="fornecedorModel.id" disabled placeholder="O ID aparecerá aqui" />
@@ -96,7 +96,7 @@ import {
 const getInitialFornecedorModel = () => ({
   id: '',
   cnpj: '',
-  nome: ''
+  nomeEmpresa: ''
 });
 
 
@@ -122,7 +122,7 @@ export default {
       colunasTabela: [
         { key: 'idFornecedor', label: 'ID' },
         { key: 'cnpj', label: 'CNPJ' },
-        { key: 'nome', label: 'Nome da empresa' },
+        { key: 'nomeEmpresa', label: 'Nome da empresa' },
       ],
       totalDeItens: 0,
       tamanhoPagina: 100,
@@ -158,10 +158,10 @@ export default {
       try{
         const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjLimpo}`);
 
-        if(!response.ok) throw new Error('CNPJ inválido ou erro na API')
+        if(!response.ok) throw new Error('CNPJ inválido ou erro na API');
           const dados = await response.json();
 
-        this.fornecedorModel.nome = dados.razao_social;
+        this.fornecedorModel.nomeEmpresa = dados.razao_social;
 
       }catch(error){
         console.warn('Não foi possível buscar o CNPJ automaticamente', error);
@@ -174,8 +174,8 @@ export default {
     async salvar() {
       try {
         const dadosParaEnviar = {
+           nomeEmpresa: this.fornecedorModel.nomeEmpresa,
            cnpj: this.fornecedorModel.cnpj,
-           nome: this.fornecedorModel.nome,
         };
         
         await FornecedorService.inserir(dadosParaEnviar);
@@ -198,7 +198,7 @@ export default {
       this.fornecedorModel = {
         id: linhaData.idFornecedor,
         cnpj: linhaData.cnpj,
-        nome: linhaData.nome
+        nomeEmpresa: linhaData.nomeEmpresa
       };
     },
     handlePageChange(event) {
