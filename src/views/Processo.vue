@@ -14,13 +14,13 @@
       <cv-grid>
         <cv-row>
           <cv-column :lg="3">
-            <cv-text-input label="Protocolo do ofício" v-model.trim="processoModel.protocoloOficio" placeholder="Digite o protocolo" />
+            <cv-text-input label="Protocolo do ofício" v-model.trim="processoModel.idProtocolo" placeholder="Digite o ID do protocolo" />
           </cv-column>
           <cv-column :lg="3">
             <cv-date-picker
               date-label="Data do processo"
               placeholder="mm/dd/yyyy"
-              v-model="processoModel.dataProcesso"
+              v-model="processoModel.dataSaidaCompras"
             />
           </cv-column>
           <cv-column :lg="3">
@@ -29,17 +29,17 @@
                 Selecione uma secretaria
               </cv-select-option>
               <cv-select-option v-for="sec in secretarias" :key="sec.idSecretaria" :value="sec.idSecretaria">
-                {{ sec.nome }}
+                {{ sec.nomeSecretaria }}
               </cv-select-option>
             </cv-select>
           </cv-column>
           <cv-column :lg="3">
-            <cv-select label="Fornecedor" v-model="processoModel.fornecedorId">
+            <cv-select label="Fornecedor" v-model="processoModel.idFornecedor">
               <cv-select-option disabled selected hidden value="">
                 Selecione um fornecedor
               </cv-select-option>
               <cv-select-option v-for="forn in fornecedores" :key="forn.idFornecedor" :value="forn.idFornecedor">
-                {{ forn.nome }}
+                {{ forn.nomeEmpresa }}
               </cv-select-option>
             </cv-select>
           </cv-column>
@@ -50,13 +50,13 @@
             <cv-text-input label="Número do ofício" v-model.trim="processoModel.numeroOficio" placeholder="Digite o número do ofício" />
           </cv-column>
           <cv-column :lg="3">
-            <cv-text-input label="Número do Processo" v-model.trim="processoModel.numeroProcesso" placeholder="Digite a descrição" />
+            <cv-text-input label="Número do Processo" v-model.trim="processoModel.numeroProcesso" placeholder="Digite o número do processo" />
           </cv-column>
           <cv-column :lg="3">
-            <cv-text-input label="Descrição" v-model.trim="processoModel.descricao" placeholder="A descrição aparecerá aqui" />
+             <cv-text-input label="Descrição (Apenas Layout)" disabled v-model.trim="processoModel.descricao" placeholder="Campo não existe no backend" />
           </cv-column>
           <cv-column :lg="3">
-            <cv-select label="Tipo" v-model="processoModel.tipo">
+            <cv-select label="Tipo" v-model="processoModel.tipoProcesso">
               <cv-select-option disabled selected hidden value="">
                 Selecione um tipo
               </cv-select-option>
@@ -125,7 +125,7 @@ import FornecedorService from '@/services/FornecedorService';
 
 // Importando Ícones
 import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32'; // CORRIGIDO
+import Clean from '@carbon/icons-vue/es/clean/32'; 
 import TrashCan from '@carbon/icons-vue/es/trash-can/32';
 import Edit from '@carbon/icons-vue/es/edit/32';
 import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
@@ -145,24 +145,25 @@ import {
   CvLink
 } from '@carbon/vue';
 
-// Estado inicial do formulário
+// Estado inicial do formulário (CORRIGIDO para bater com Processo.java)
 const getInitialProcessoModel = () => ({
   id: '',
-  protocoloOficio: '',
-  dataProcesso: '',
-  secretariaId: '',
-  fornecedorId: '',
+  idProtocolo: '',
+  dataSaidaCompras: '',
+  secretariaId: '', // (Este campo não existe no backend 'Processo.java', mas está no seu form)
+  idFornecedor: '',
   numeroOficio: '',
   numeroProcesso: '',
-  descricao: '',
-  tipo: ''
+  descricao: '', // (Este campo não existe no backend 'Processo.java', mas está no seu form)
+  tipoProcesso: '',
+  idOficio: '' // (Este campo existe no backend, mas não no seu form)
 });
 
 export default {
   name: 'ProcessoView',
   // Registrando TODOS os componentes
   components: {
-    Add, Clean, TrashCan, Edit, ArrowLeft, // CORRIGIDO
+    Add, Clean, TrashCan, Edit, ArrowLeft,
     CvGrid,
     CvRow,
     CvColumn,
@@ -179,15 +180,15 @@ export default {
     return {
       processoModel: getInitialProcessoModel(),
       processos: [],
+       // CORREÇÃO: colunas para bater com Processo.java
       colunasTabela: [
-        { key: 'protocolo', label: 'Protocolo' },
-        { key: 'numeroOficio', label: 'Número do ofício' },
-        { key: 'numeroProcesso', label: 'Número do processo' },
-        { key: 'dataProcesso', label: 'Data' },
-        { key: 'tipo', label: 'Tipo' },
-        { key: 'secretariaNome', label: 'Secretaria' },
-        { key: 'descricao', label: 'Descrição' },
-        { key: 'fornecedorNome', label: 'Fornecedor' },
+        { key: 'idProcesso', label: 'ID' },
+        { key: 'idProtocolo', label: 'ID Protocolo' },
+        { key: 'numeroOficio', label: 'Num Ofício' },
+        { key: 'numeroProcesso', label: 'Num Processo' },
+        { key: 'dataSaidaCompras', label: 'Data' },
+        { key: 'tipoProcesso', label: 'Tipo' },
+        { key: 'idFornecedor', label: 'ID Fornecedor' },
       ],
       secretarias: [],
       fornecedores: [],
@@ -200,13 +201,9 @@ export default {
     async buscarProcessos() {
       try {
         const response = await ProcessoService.buscarTodos();
-        this.processos = response.data.map(proc => ({
-          ...proc,
-          protocolo: proc.oficio ? proc.oficio.protocolo : 'N/A',
-          numeroOficio: proc.oficio ? proc.oficio.numero : 'N/A',
-          secretariaNome: proc.secretaria ? proc.secretaria.nome : 'N/A',
-          fornecedorNome: proc.fornecedor ? proc.fornecedor.nome : 'N/A'
-        }));
+        // CORREÇÃO: Removido o '.map()' que quebrava.
+        // O backend envia dados simples (IDs), e a tabela agora está pronta para eles.
+        this.processos = response.data;
         this.totalDeItens = this.processos.length;
       } catch (error) {
         console.error('Erro ao buscar processos:', error);
@@ -232,16 +229,19 @@ export default {
     // Ações dos Botões
     async salvar() {
       try {
+        // CORREÇÃO: Este JSON agora bate 100% com o seu Processo.java
         const dadosParaEnviar = {
-           // (Precisamos confirmar os nomes dos campos com o DTO do backend)
-           dataProcesso: this.processoModel.dataProcesso,
-           numeroProcesso: this.processoModel.numeroProcesso,
-           descricao: this.processoModel.descricao,
-           tipo: this.processoModel.tipo,
-           // Assumindo que o backend espera os objetos de relação
-           secretaria: { idSecretaria: this.processoModel.secretariaId },
-           fornecedor: { idFornecedor: this.processoModel.fornecedorId },
-           // (Ainda precisamos de um 'Oficio'. Por enquanto, vamos omitir)
+           idProtocolo: parseInt(this.processoModel.idProtocolo) || null,
+           dataSaidaCompras: this.processoModel.dataSaidaCompras || null,
+           idFornecedor: parseInt(this.processoModel.idFornecedor) || null,
+           numeroOficio: parseInt(this.processoModel.numeroOficio) || null,
+           numeroProcesso: parseInt(this.processoModel.numeroProcesso) || null,
+           tipoProcesso: this.processoModel.tipoProcesso,
+           
+           // O seu form não tem 'idOficio', então vamos enviar null.
+           idOficio: null 
+           
+           // 'idSecretaria' e 'descricao' não são enviados pois não existem no Processo.java
         };
         
         await ProcessoService.inserir(dadosParaEnviar);
@@ -261,16 +261,22 @@ export default {
     // Ações da Tabela
     handleRowClick(event) {
       const linhaData = event.detail.row;
+      console.log("Linha clicada:", linhaData);
+
+      // CORREÇÃO: Mapeamento simples para bater com o backend
       this.processoModel = {
         id: linhaData.idProcesso,
-        protocoloOficio: linhaData.protocolo,
-        dataProcesso: linhaData.dataProcesso,
-        secretariaId: linhaData.secretaria ? linhaData.secretaria.idSecretaria : '',
-        fornecedorId: linhaData.fornecedor ? linhaData.fornecedor.idFornecedor : '',
+        idProtocolo: linhaData.idProtocolo,
+        dataSaidaCompras: linhaData.dataSaidaCompras,
+        idFornecedor: linhaData.idFornecedor,
         numeroOficio: linhaData.numeroOficio,
         numeroProcesso: linhaData.numeroProcesso,
-        descricao: linhaData.descricao,
-        tipo: linhaData.tipo
+        tipoProcesso: linhaData.tipoProcesso,
+        idOficio: linhaData.idOficio,
+
+        // Campos do form que não vêm do backend
+        secretariaId: '', 
+        descricao: ''
       };
     },
     handlePageChange(event) {

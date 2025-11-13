@@ -35,7 +35,7 @@
             </cv-button>
           </cv-column>
           <cv-column :lg="4">
-            <cv-button class="btn-full-width" kind="ghost" disabled>
+            <cv-button class="btn-full-width" kind="ghost" @click="deletar">
               Deletar <TrashCan class="btn-icon" />
             </cv-button>
           </cv-column>
@@ -49,7 +49,7 @@
         <cv-data-table
           :columns="colunasTabela"
           :data="secretarias"
-          @row-click="handleRowClick"
+          @select-row="handleRowSelect" >
         >
         </cv-data-table>
         
@@ -74,7 +74,7 @@ import SecretariaService from '@/services/SecretariaService';
 
 // Importando Ícones
 import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32'; // A "vassourinha"
+import Clean from '@carbon/icons-vue/es/clean/32';
 import TrashCan from '@carbon/icons-vue/es/trash-can/32';
 import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
 
@@ -98,9 +98,9 @@ const getInitialSecretariaModel = () => ({
 
 export default {
   name: 'SecretariaView',
-  // Registrando TODOS os componentes
+  // Registrando TODOS os componentes (ERRO DE SINTAXE CORRIGIDO)
   components: {
-    Add, Clean, TrashCan, ArrowLeft,
+    Add, Clean, TrashCan, ArrowLeft, // 'Undo' foi removido
     CvGrid,
     CvRow,
     CvColumn,
@@ -114,16 +114,16 @@ export default {
     return {
       secretariaModel: getInitialSecretariaModel(),
       secretarias: [],
+      // MAPA DA TABELA (CORRIGIDO)
       colunasTabela: [
         { key: 'idSecretaria', label: 'ID' },
-        { key: 'nome', label: 'Nome da secretaria' },
+        { key: 'nomeSecretaria', label: 'Nome da secretaria' },
       ],
       totalDeItens: 0,
       tamanhoPagina: 100
     };
   },
   methods: {
-    // Métodos para buscar dados do backend
     async buscarSecretarias() {
       try {
         const response = await SecretariaService.buscarTodas();
@@ -134,11 +134,10 @@ export default {
       }
     },
     
-    // Ações dos Botões
     async salvar() {
       try {
         const dadosParaEnviar = {
-           nome: this.secretariaModel.nome,
+           nomeSecretaria: this.secretariaModel.nome,
         };
         
         await SecretariaService.inserir(dadosParaEnviar);
@@ -148,41 +147,54 @@ export default {
         console.error("Erro ao salvar secretaria:", error);
       }
     },
+    
     limpar() {
       this.secretariaModel = getInitialSecretariaModel();
     },
+
     async deletar() {
-      // (Lógica para o futuro, já que o botão está desabilitado)
+      if (!this.secretariaModel.id) {
+        alert('Por favor, clique em uma secretaria na tabela para deletar.');
+        return;
+      }
+      try {
+        await SecretariaService.deletar(this.secretariaModel.id);
+        this.limpar();
+        this.buscarSecretarias();
+      } catch(error) {
+        console.error("Erro ao deletar secretaria:", error);
+      }
     },
 
-    // Ações da Tabela
-    handleRowClick(event) {
+    // MAPA DO CLIQUE (CORRIGIDO)
+    handleRowSelect(event) {
       const linhaData = event.detail.row;
+      console.log("Linha selecionada:", linhaData);
       this.secretariaModel = {
         id: linhaData.idSecretaria,
-        nome: linhaData.nome
+        nome: linhaData.nomeSecretaria // Corrigido de 'nome'
       };
     },
+
     handlePageChange(event) {
       console.log('Paginação alterada:', event);
     }
   },
-  // 'created' é chamado quando o componente é carregado
   created() {
     this.buscarSecretarias();
   }
-};
+}
 </script>
 
 <style scoped>
-/* Estilos do Figma (Idênticos ao Oficio.vue) */
+/* Estilos do Figma */
 .page-container-blue {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
   padding: 2rem;
-  background: #0f62fe; /* Fundo azul IBM Carbon */
+  background: #0f62fe;
   box-sizing: border-box;
 }
 
@@ -218,7 +230,6 @@ export default {
   fill: #0f62fe;
 }
 
-/* Espaçamento entre as linhas da grid */
 cv-row {
   margin-bottom: 1rem;
 }
@@ -235,10 +246,9 @@ cv-row {
   margin-left: 0.5rem;
 }
 
-/* Estilo para ícones em botões tertiary (azuis) */
 .btn-icon-tertiary {
   margin-left: 0.5rem;
-  fill: #0f62fe; /* Azul IBM Carbon */
+  fill: #0f62fe;
 }
 
 .table-container {

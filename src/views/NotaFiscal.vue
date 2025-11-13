@@ -14,10 +14,10 @@
       <cv-grid>
         <cv-row>
           <cv-column :lg="3">
-            <cv-text-input label="Protocolo da nota" v-model.trim="nfModel.protocolo" placeholder="Digite o protocolo" />
+            <cv-text-input label="Protocolo da nota" v-model.trim="nfModel.idProtocolo" placeholder="Digite o ID do protocolo" />
           </cv-column>
           <cv-column :lg="3">
-            <cv-date-picker
+             <cv-date-picker
               date-label="Data do protocolo"
               placeholder="mm/dd/yyyy"
               v-model="nfModel.dataProtocolo"
@@ -31,29 +31,29 @@
             />
           </cv-column>
           <cv-column :lg="3">
-            <cv-text-input label="Valor da nota" v-model.trim="nfModel.valor" placeholder="Digite o valor da nota" />
+            <cv-text-input label="Valor da nota" v-model.trim="nfModel.valorNota" placeholder="Digite o valor da nota" />
           </cv-column>
         </cv-row>
         
         <cv-row>
           <cv-column :lg="3">
-            <cv-text-input label="Número da nota" v-model.trim="nfModel.numero" placeholder="Digite o número da nota" />
+            <cv-text-input label="Número da nota" v-model.trim="nfModel.numeroNota" placeholder="Digite o número da nota" />
           </cv-column>
           <cv-column :lg="3">
             <cv-date-picker
               date-label="Data da nota"
               placeholder="mm/dd/yyyy"
-              v-model="nfModel.dataNota"
+              v-model="nfModel.dataEmissao"
             />
           </cv-column>
           <cv-column :lg="3">
-             <cv-text-input label="Número do Processo" v-model.trim="nfModel.processoId" placeholder="Digite o número do processo" />
+             <cv-text-input label="Número do Processo" v-model.trim="nfModel.idProcesso" placeholder="Digite o ID do processo" />
           </cv-column>
           <cv-column :lg="3">
             <cv-text-input label="ID" v-model="nfModel.id" disabled placeholder="O ID aparecerá aqui" />
           </cv-column>
         </cv-row>
-      </cv-grid>
+        </cv-grid>
 
       <cv-grid class="button-grid">
         <cv-row>
@@ -67,7 +67,7 @@
               Limpar <Clean class="btn-icon-tertiary" /> </cv-button>
           </cv-column>
           <cv-column :lg="3">
-            <cv-button class="btn-full-width" kind="ghost" disabled>
+            <cv-button class="btn-full-width" kind="ghost" @click="deletar">
               Deletar <TrashCan class="btn-icon" />
             </cv-button>
           </cv-column>
@@ -107,12 +107,10 @@
 <script>
 // Importando os Serviços
 import NFService from '@/services/NFService';
-// (Vamos precisar do ProcessoService se o 'Número do Processo' for um ID)
-// import ProcessoService from '@/services/ProcessoService';
 
 // Importando Ícones
 import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32'; // CORRIGIDO
+import Clean from '@carbon/icons-vue/es/clean/32';
 import TrashCan from '@carbon/icons-vue/es/trash-can/32';
 import Edit from '@carbon/icons-vue/es/edit/32';
 import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
@@ -130,23 +128,24 @@ import {
   CvLink
 } from '@carbon/vue';
 
-// Estado inicial do formulário
+// Estado inicial do formulário (Alinhado com o formulário do Figma)
 const getInitialNFModel = () => ({
   id: '',
-  protocolo: '',
-  dataProtocolo: '',
+  idProtocolo: '',
+  dataProtocolo: '', // (Só existe no Figma)
   dataChegada: '',
-  valor: '',
-  numero: '',
-  dataNota: '',
-  processoId: '' // ID do processo
+  valorNota: '',
+  numeroNota: '',
+  dataEmissao: '',
+  idProcesso: '',
+  idFornecedor: '' // (Existe no NF.java, mas não no Figma)
 });
 
 export default {
   name: 'NotaFiscalView',
   // Registrando TODOS os componentes
   components: {
-    Add, Clean, TrashCan, Edit, ArrowLeft, // CORRIGIDO
+    Add, Clean, TrashCan, Edit, ArrowLeft,
     CvGrid,
     CvRow,
     CvColumn,
@@ -161,15 +160,16 @@ export default {
     return {
       nfModel: getInitialNFModel(),
       notasFiscais: [],
+      // CORREÇÃO: Colunas alinhadas com os campos do NF.java
       colunasTabela: [
-        { key: 'idNF', label: 'ID' },
+        { key: 'idNotaFiscal', label: 'ID' },
         { key: 'dataChegada', label: 'Data de chegada' },
-        { key: 'protocolo', label: 'Protocolo da Nota' },
-        { key: 'dataProtocolo', label: 'Data do Protocolo' },
-        { key: 'numero', label: 'Número da nota' },
-        { key: 'valor', label: 'Valor da nota' },
-        { key: 'dataNota', label: 'Data da nota' },
-        { key: 'numeroProcesso', label: 'Número Processo' },
+        { key: 'idProtocolo', label: 'ID Protocolo' },
+        { key: 'numeroNota', label: 'Número da nota' },
+        { key: 'valorNota', label: 'Valor da nota' },
+        { key: 'dataEmissao', label: 'Data da nota' },
+        { key: 'idProcesso', label: 'ID Processo' },
+        { key: 'idFornecedor', label: 'ID Fornecedor' },
       ],
       totalDeItens: 0,
       tamanhoPagina: 100
@@ -179,13 +179,10 @@ export default {
     // Métodos para buscar dados do backend
     async buscarNotasFiscais() {
       try {
+        // CORREÇÃO: Removido o '.map()' que quebrava a lógica.
+        // O backend envia os dados simples, e a tabela agora está pronta para recebê-los.
         const response = await NFService.buscarTodas();
-        this.notasFiscais = response.data.map(nf => ({
-          ...nf,
-          idNF: nf.idNF,
-          // Mapeia o objeto 'processo' para a coluna da tabela
-          numeroProcesso: nf.processo ? nf.processo.numeroProcesso : 'N/A'
-        }));
+        this.notasFiscais = response.data;
         this.totalDeItens = this.notasFiscais.length;
       } catch (error) {
         console.error('Erro ao buscar notas fiscais:', error);
@@ -195,15 +192,17 @@ export default {
     // Ações dos Botões
     async salvar() {
       try {
+        // O JSON deve bater EXATAMENTE com o NF.java
         const dadosParaEnviar = {
-           protocolo: this.nfModel.protocolo,
-           dataProtocolo: this.nfModel.dataProtocolo,
-           dataChegada: this.nfModel.dataChegada,
-           valor: parseFloat(this.nfModel.valor), // Converter valor para número
-           numero: this.nfModel.numero,
-           dataNota: this.nfModel.dataNota,
-           // Assumindo que o backend espera o objeto de processo
-           processo: { idProcesso: parseInt(this.nfModel.processoId) } // Converter ID para número
+           idProtocolo: parseInt(this.nfModel.idProtocolo) || null,
+           dataChegada: this.nfModel.dataChegada || null,
+           valorNota: parseFloat(this.nfModel.valorNota) || null,
+           numeroNota: parseInt(this.nfModel.numeroNota) || null,
+           dataEmissao: this.nfModel.dataEmissao || null,
+           idProcesso: parseInt(this.nfModel.idProcesso) || null,
+           // O Figma não tem 'idFornecedor', então pegamos do 'nfModel'
+           // (que pode ser preenchido pelo clique na tabela)
+           idFornecedor: parseInt(this.nfModel.idFornecedor) || null
         };
         
         await NFService.inserir(dadosParaEnviar);
@@ -217,21 +216,37 @@ export default {
       this.nfModel = getInitialNFModel();
     },
     async deletar() {
-      // (Lógica para o futuro)
+      if (!this.nfModel.id) {
+        alert('Por favor, clique em uma nota fiscal na tabela para deletar.');
+        return;
+      }
+      try {
+        await NFService.deletar(this.nfModel.id);
+        this.limpar();
+        this.buscarNotasFiscais();
+      } catch(error) {
+        console.error("Erro ao deletar nota fiscal:", error);
+      }
     },
 
     // Ações da Tabela
     handleRowClick(event) {
       const linhaData = event.detail.row;
+      console.log("Linha clicada:", linhaData);
+      
+      // CORREÇÃO: Mapeamento simplificado para ler os IDs simples do backend
       this.nfModel = {
-        id: linhaData.idNF,
-        protocolo: linhaData.protocolo,
-        dataProtocolo: linhaData.dataProtocolo,
+        id: linhaData.idNotaFiscal,
+        idProtocolo: linhaData.idProtocolo,
         dataChegada: linhaData.dataChegada,
-        valor: linhaData.valor,
-        numero: linhaData.numero,
-        dataNota: linhaData.dataNota,
-        processoId: linhaData.processo ? linhaData.processo.idProcesso : ''
+        valorNota: linhaData.valorNota,
+        numeroNota: linhaData.numeroNota,
+        dataEmissao: linhaData.dataEmissao,
+        idProcesso: linhaData.idProcesso,
+        idFornecedor: linhaData.idFornecedor,
+        
+        // (Campos que só existem no formulário do Figma)
+        dataProtocolo: ''
       };
     },
     handlePageChange(event) {
@@ -241,7 +256,6 @@ export default {
   // 'created' é chamado quando o componente é carregado
   created() {
     this.buscarNotasFiscais();
-    // (Se o 'Número do Processo' fosse um dropdown, chamaríamos o buscarProcessos() aqui)
   }
 };
 </script>
@@ -254,7 +268,7 @@ export default {
   align-items: flex-start;
   min-height: 100vh;
   padding: 2rem;
-  background: #0f62fe; /* Fundo azul IBM Carbon */
+  background: #0f62fe;
   box-sizing: border-box;
 }
 
@@ -290,7 +304,6 @@ export default {
   fill: #0f62fe;
 }
 
-/* Espaçamento entre as linhas da grid */
 cv-row {
   margin-bottom: 1rem;
 }
@@ -307,10 +320,9 @@ cv-row {
   margin-left: 0.5rem;
 }
 
-/* Estilo para ícones em botões tertiary (azuis) */
 .btn-icon-tertiary {
   margin-left: 0.5rem;
-  fill: #0f62fe; /* Azul IBM Carbon */
+  fill: #0f62fe;
 }
 
 .table-container {
