@@ -93,12 +93,13 @@ import {
   CvLink
 } from '@carbon/vue';
 
-// Estado inicial do formulário
 const getInitialFornecedorModel = () => ({
   id: '',
   cnpj: '',
   nome: ''
 });
+
+
 
 export default {
   name: 'FornecedorView',
@@ -124,11 +125,24 @@ export default {
         { key: 'nome', label: 'Nome da empresa' },
       ],
       totalDeItens: 0,
-      tamanhoPagina: 100
+      tamanhoPagina: 100,
+      carregandoCNPJ: false
     };
   },
+
+  watch:{
+    'fornecedorModel.cnpj': function(novoValor) {
+      if (!novoValor) return;
+
+      const cnpjLimpo = novoValor.replace(/\D/g, '');
+
+      if(cnpjLimpo.length ===14){
+        this.buscarDadosCNPJ(cnpjLimpo);
+      }
+    }
+  },
   methods: {
-    // Métodos para buscar dados do backend
+
     async buscarFornecedores() {
       try {
         const response = await FornecedorService.buscarTodos();
@@ -136,6 +150,23 @@ export default {
         this.totalDeItens = this.fornecedores.length;
       } catch (error) {
         console.error('Erro ao buscar fornecedores:', error);
+      }
+    },
+
+    async buscarDadosCNPJ(cnpjLimpo) {
+      this.carregandoCNPJ = true;
+      try{
+        const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjLimpo}`);
+
+        if(!response.ok) throw new Error('CNPJ inválido ou erro na API')
+          const dados = await response.json();
+
+        this.fornecedorModel.nome = dados.razao_social;
+
+      }catch(error){
+        console.warn('Não foi possível buscar o CNPJ automaticamente', error);
+      }finally {
+        this.carregandoCNPJ = false;
       }
     },
     
@@ -179,6 +210,9 @@ export default {
     this.buscarFornecedores();
   }
 };
+
+
+
 </script>
 
 <style scoped>
