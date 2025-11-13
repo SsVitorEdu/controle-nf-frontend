@@ -11,34 +11,34 @@
         </router-link>
       </div>
 
-      <cv-grid>
+      <cv-grid class="bx--no-gutter" full-width>
         <cv-row>
-          <cv-column :lg="4">
+          <cv-column :lg="3">
             <cv-text-input label="CNPJ" v-model.trim="fornecedorModel.cnpj" placeholder="Digite o CNPJ da empresa" />
           </cv-column>
-          <cv-column :lg="4">
+          <cv-column :lg="3">
             <cv-text-input label="Nome da empresa" v-model.trim="fornecedorModel.nome" placeholder="Digite o nome da empresa" />
           </cv-column>
-          <cv-column :lg="4">
+          <cv-column :lg="3">
             <cv-text-input label="ID" v-model="fornecedorModel.id" disabled placeholder="O ID aparecerá aqui" />
           </cv-column>
         </cv-row>
       </cv-grid>
 
-      <cv-grid class="button-grid">
+      <cv-grid class="button-grid bx--no-gutter" full-width>
         <cv-row>
-          <cv-column :lg="4">
+          <cv-column :lg="3">
             <cv-button class="btn-full-width" kind="tertiary" @click="salvar">
               Cadastrar <Add class="btn-icon-tertiary" />
             </cv-button>
           </cv-column>
-          <cv-column :lg="4">
+          <cv-column :lg="3">
             <cv-button class="btn-full-width" kind="tertiary" @click="limpar">
              Limpar <Clean class="btn-icon-tertiary" />
            </cv-button>
           </cv-column>
           <cv-column :lg="4">
-            <cv-button class="btn-full-width" kind="ghost" disabled>
+            <cv-button class="btn-full-width deletar" kind="ghost" disabled>
               Deletar <TrashCan class="btn-icon" />
             </cv-button>
           </cv-column>
@@ -46,8 +46,8 @@
       </cv-grid>
 
       <div class="table-container">
-        <h2>Fornecedores</h2>
-        <p>Nesta tabela estão todos os fornecedores cadastrados</p>
+        <h2 class="textoFornecedores">Fornecedores</h2>
+        <p class="descricao">Nesta tabela estão todos os fornecedores cadastrados</p>
         
         <cv-data-table
           :columns="colunasTabela"
@@ -76,10 +76,10 @@
 import FornecedorService from '@/services/FornecedorService';
 
 // Importando Ícones
-import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32';
-import TrashCan from '@carbon/icons-vue/es/trash-can/32';
-import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
+import Add from '@carbon/icons-vue/es/add/16';
+import Clean from '@carbon/icons-vue/es/clean/16';
+import TrashCan from '@carbon/icons-vue/es/trash-can/16';
+import ArrowLeft from '@carbon/icons-vue/es/arrow--left/20';
 
 // Importando TODOS os componentes Carbon que usamos
 import {
@@ -182,23 +182,22 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos do Figma (Idênticos ao Oficio.vue) */
+
 .page-container-blue {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
   padding: 2rem;
-  background: #0f62fe; /* Fundo azul IBM Carbon */
+  background: #0f62fe;
   box-sizing: border-box;
 }
 
 .content-box {
   background: #fff;
-  padding: 2rem 3rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  font-family: "IBM Plex Sans", sans-serif;
+  padding: 32px 32px;
+  width: 1376px;
   max-width: 1400px;
 }
 
@@ -216,8 +215,40 @@ export default {
   color: #161616;
 }
 
+cv-text-input{
+  width: 288px;
+}
+
+.btn-icon-tertiary {
+  margin-left: 64px;
+  margin-right: 0;
+  fill: #0f62fe;
+  transition: fill 0.1s ease-in-out;
+}
+
+.btn-full-width:disabled{
+  border: 1px solid #C6C6C6;
+}
+
+.deletar:enabled{
+  border: 1px solid #0f62fe;
+}
+
+
+
+.btn-full-width:hover .btn-icon-tertiary {
+  fill: #FFFFFF;
+}
+
+cv-grid{
+  margin-top: 0;
+}
+
 .back-link {
   text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
 }
 
 .back-icon {
@@ -227,34 +258,57 @@ export default {
 
 /* Espaçamento entre as linhas da grid */
 cv-row {
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .button-grid {
-  margin-top: 1.5rem;
+  margin-top: 40px;
+  margin-bottom: 0;
 }
 
 .btn-full-width {
-  width: 100%;
+  width: 410.66px;
+  height: 48px;
+  margin-right: 40px;
 }
 
 .btn-icon {
-  margin-left: 0.5rem;
+  margin-left: 0;
 }
 
-/* Estilo para ícones em botões tertiary (azuis) */
+
 .btn-icon-tertiary {
-  margin-left: 0.5rem;
-  fill: #0f62fe; /* Azul IBM Carbon */
+  margin-left: 0;
+  fill: #0f62fe;
 }
 
 .table-container {
-  margin-top: 3rem;
+  margin-top: 40px;
 }
 
 cv-pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+.textoFornecedores, .descricao{
+  background-color: #F4F4F4;
+  margin-bottom: 0;
+}
+
+.textoFornecedores {
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 28px
+}
+
+.descricao {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 128.571% */
+  letter-spacing: 0.16px;
 }
 </style>
