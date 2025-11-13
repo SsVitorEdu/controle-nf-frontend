@@ -172,6 +172,10 @@ export default {
     
     // Ações dos Botões
     async salvar() {
+
+      if(this.fornecedorModel.nomeEmpresa.length < 14) {
+        alert('Campo CNPJ vazio');
+      }
       try {
         const dadosParaEnviar = {
            nomeEmpresa: this.fornecedorModel.nomeEmpresa,
@@ -268,8 +272,6 @@ cv-text-input{
   border: 1px solid #0f62fe;
 }
 
-
-
 .btn-full-width:hover .btn-icon-tertiary {
   fill: #FFFFFF;
 }
@@ -290,7 +292,6 @@ cv-grid{
   fill: #0f62fe;
 }
 
-/* Espaçamento entre as linhas da grid */
 cv-row {
   margin-bottom: 0;
 }
