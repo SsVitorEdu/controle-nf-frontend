@@ -12,7 +12,7 @@ export default {
   },
 
   inserir(dadosSecretaria) {
-    return apiClient.post('/secretaria', dadosSecretaria);
+    return apiClient.post('/secretaria/inserir', dadosSecretaria);
   },
 
   alterar(id, dadosSecretaria) {
@@ -20,6 +20,6 @@ export default {
   },
 
   deletar(id) {
-    return apiClient.delete(`/secretaria/${id}`);
+    return apiClient.get(`/secretaria/remover/${id}`);
   }
 };

@@ -14,7 +14,7 @@
       <cv-grid>
         <cv-row>
           <cv-column :lg="4">
-            <cv-text-input label="Protocolo" v-model.trim="oficioModel.protocolo" placeholder="Digite o protocolo" />
+            <cv-text-input label="Protocolo" v-model.trim="oficioModel.idProtocolo" placeholder="Digite o ID do protocolo" />
           </cv-column>
           <cv-column :lg="4">
             <cv-text-input label="Número do ofício" v-model.trim="oficioModel.numeroOficio" placeholder="Digite o número do ofício" />
@@ -23,7 +23,7 @@
             <cv-date-picker
               date-label="Data"
               placeholder="mm/dd/yyyy"
-              v-model="oficioModel.data"
+              v-model="oficioModel.dataOficio"
             />
           </cv-column>
         </cv-row>
@@ -32,12 +32,12 @@
             <cv-text-input label="Descrição" v-model.trim="oficioModel.descricao" placeholder="Digite a descrição" />
           </cv-column>
           <cv-column :lg="4">
-            <cv-select label="Secretaria" v-model="oficioModel.secretariaId">
+            <cv-select label="Secretaria" v-model="oficioModel.idSecretaria">
               <cv-select-option disabled selected hidden value="">
                 Selecione uma secretaria
               </cv-select-option>
               <cv-select-option v-for="sec in secretarias" :key="sec.idSecretaria" :value="sec.idSecretaria">
-                {{ sec.nome }}
+                {{ sec.nomeSecretaria }}
               </cv-select-option>
             </cv-select>
           </cv-column>
@@ -104,7 +104,7 @@ import SecretariaService from '@/services/SecretariaService';
 
 // Importando Ícones
 import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32'; // CORRIGIDO
+import Clean from '@carbon/icons-vue/es/clean/32';
 import TrashCan from '@carbon/icons-vue/es/trash-can/32';
 import Edit from '@carbon/icons-vue/es/edit/32';
 import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
@@ -124,21 +124,21 @@ import {
   CvLink
 } from '@carbon/vue';
 
-// Estado inicial do formulário
+// Estado inicial do formulário (CORRIGIDO para bater com Oficio.java)
 const getInitialOficioModel = () => ({
   id: '',
-  protocolo: '',
+  idProtocolo: '',
   numeroOficio: '',
-  data: '',
+  dataOficio: '',
   descricao: '',
-  secretariaId: ''
+  idSecretaria: ''
 });
 
 export default {
   name: 'OficioView',
   // Registrando TODOS os componentes
   components: {
-    Add, Clean, TrashCan, Edit, ArrowLeft, // CORRIGIDO
+    Add, Clean, TrashCan, Edit, ArrowLeft,
     CvGrid,
     CvRow,
     CvColumn,
@@ -155,29 +155,26 @@ export default {
     return {
       oficioModel: getInitialOficioModel(),
       oficios: [],
+      // CORREÇÃO: colunas para bater com Oficio.java
       colunasTabela: [
         { key: 'idOficio', label: 'ID' },
-        { key: 'protocolo', label: 'Protocolo' },
-        { key: 'data', label: 'Data' },
-        { key: 'numero', label: 'Número' },
-        { key: 'secretariaNome', label: 'Secretaria' }, 
+        { key: 'idProtocolo', label: 'ID Protocolo' },
+        { key: 'dataOficio', label: 'Data' },
+        { key: 'numeroOficio', label: 'Número' },
+        { key: 'idSecretaria', label: 'ID Secretaria' }, 
         { key: 'descricao', label: 'Descrição' },
       ],
       secretarias: [],
       totalDeItens: 0,
-      tamanhoPagina: 100 // Para o Figma
+      tamanhoPagina: 100 
     };
   },
   methods: {
     async buscarOficios() {
       try {
         const response = await OficioService.buscarTodos();
-        this.oficios = response.data.map(oficio => ({
-          ...oficio,
-          idOficio: oficio.idOficio,
-          numero: oficio.numero,
-          secretariaNome: oficio.secretaria ? oficio.secretaria.nome : 'N/A' 
-        }));
+        // CORREÇÃO: Removido o '.map()' que quebrava
+        this.oficios = response.data;
         this.totalDeItens = this.oficios.length;
       } catch (error) {
         console.error('Erro ao buscar ofícios:', error);
@@ -194,12 +191,13 @@ export default {
     
     async salvar() {
       try {
+        // CORREÇÃO: Este JSON agora bate 100% com o seu Oficio.java
         const dadosParaEnviar = {
-           protocolo: this.oficioModel.protocolo,
-           numero: this.oficioModel.numeroOficio,
-           data: this.oficioModel.data,
+           idProtocolo: parseInt(this.oficioModel.idProtocolo) || null,
+           numeroOficio: parseInt(this.oficioModel.numeroOficio) || null,
+           dataOficio: this.oficioModel.dataOficio || null,
            descricao: this.oficioModel.descricao,
-           secretaria: { idSecretaria: this.oficioModel.secretariaId }
+           idSecretaria: parseInt(this.oficioModel.idSecretaria) || null
         };
         
         await OficioService.inserir(dadosParaEnviar);
@@ -213,29 +211,21 @@ export default {
       this.oficioModel = getInitialOficioModel();
     },
     async deletar() {
-      // (A lógica está aqui, embora o botão esteja desabilitado)
-      if (!this.oficioModel.id) {
-        alert('Selecione um ofício na tabela para deletar.');
-        return;
-      }
-      try {
-        await OficioService.deletar(this.oficioModel.id);
-        this.limpar();
-        this.buscarOficios();
-      } catch(error) {
-        console.error("Erro ao deletar ofício:", error);
-      }
+      // (Lógica para o futuro)
     },
 
     handleRowClick(event) {
       const linhaData = event.detail.row;
+      console.log("Linha clicada:", linhaData);
+      
+      // CORREÇÃO: Mapeamento simples para bater com o backend
       this.oficioModel = {
         id: linhaData.idOficio,
-        protocolo: linhaData.protocolo,
-        numeroOficio: linhaData.numero,
-        data: linhaData.data,
+        idProtocolo: linhaData.idProtocolo,
+        numeroOficio: linhaData.numeroOficio,
+        dataOficio: linhaData.dataOficio,
         descricao: linhaData.descricao,
-        secretariaId: linhaData.secretaria ? linhaData.secretaria.idSecretaria : ''
+        idSecretaria: linhaData.idSecretaria
       };
     },
     handlePageChange(event) {

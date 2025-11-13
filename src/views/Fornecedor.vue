@@ -38,7 +38,7 @@
            </cv-button>
           </cv-column>
           <cv-column :lg="4">
-            <cv-button class="btn-full-width" kind="ghost" disabled>
+            <cv-button class="btn-full-width" kind="ghost" @click="deletar">
               Deletar <TrashCan class="btn-icon" />
             </cv-button>
           </cv-column>
@@ -121,7 +121,8 @@ export default {
       colunasTabela: [
         { key: 'idFornecedor', label: 'ID' },
         { key: 'cnpj', label: 'CNPJ' },
-        { key: 'nome', label: 'Nome da empresa' },
+        // CORRIGIDO: de 'nome' para 'nomeEmpresa' para bater com Fornecedor.java
+        { key: 'nomeEmpresa', label: 'Nome da empresa' },
       ],
       totalDeItens: 0,
       tamanhoPagina: 100
@@ -142,9 +143,10 @@ export default {
     // Ações dos Botões
     async salvar() {
       try {
+        // CORRIGIDO: de 'nome' para 'nomeEmpresa' para bater com Fornecedor.java
         const dadosParaEnviar = {
            cnpj: this.fornecedorModel.cnpj,
-           nome: this.fornecedorModel.nome,
+           nomeEmpresa: this.fornecedorModel.nome,
         };
         
         await FornecedorService.inserir(dadosParaEnviar);
@@ -157,17 +159,33 @@ export default {
     limpar() {
       this.fornecedorModel = getInitialFornecedorModel();
     },
+    // CORRIGIDO: Lógica do 'deletar' implementada
     async deletar() {
-      // (Lógica para o futuro, já que o botão está desabilitado)
+      if (!this.fornecedorModel.id) {
+        alert('Por favor, clique em um fornecedor na tabela para deletar.');
+        return;
+      }
+
+      try {
+        await FornecedorService.deletar(this.fornecedorModel.id);
+        this.limpar();
+        this.buscarFornecedores();
+
+      } catch(error) {
+        console.error("Erro ao deletar fornecedor:", error);
+      }
     },
 
     // Ações da Tabela
     handleRowClick(event) {
       const linhaData = event.detail.row;
+      console.log("Linha clicada:", linhaData);
+      
+      // CORRIGIDO: de 'linhaData.nome' para 'linhaData.nomeEmpresa'
       this.fornecedorModel = {
         id: linhaData.idFornecedor,
         cnpj: linhaData.cnpj,
-        nome: linhaData.nome
+        nome: linhaData.nomeEmpresa
       };
     },
     handlePageChange(event) {
@@ -182,7 +200,7 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos do Figma (Idênticos ao Oficio.vue) */
+/* ... (seus estilos permanecem os mesmos) ... */
 .page-container-blue {
   display: flex;
   justify-content: center;
