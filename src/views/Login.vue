@@ -3,14 +3,16 @@
     <div class="login-box">
       <h1 class="login-title">Login</h1>
 
-      <cv-form @submit.prevent="handleLogin">
-        
+      <cv-form @submit.prevent="handleLogin" class="login-form">
+        <div class="email-form-input">
         <cv-text-input
           label="Usuário"
           placeholder="Digite seu usuário"
           v-model="email"
         />
-        
+        </div>
+
+        <div class="password-form-input">
         <cv-text-input
           type="password"
           label="Senha"
@@ -18,7 +20,7 @@
           v-model="senha"
           :invalid="!!errorMsg"
         />
-
+        </div>
         <cv-inline-notification
           v-if="errorMsg"
           :title="errorMsg"
@@ -81,6 +83,7 @@ export default {
 <style scoped>
 .login-container {
   display: flex;
+  font-family: "IBM Plex Sans", sans-serif;
   justify-content: center;
   align-items: center;
   height: 100vh;
@@ -88,22 +91,44 @@ export default {
 }
 .login-box {
   background: #fff;
-  padding: 2rem 3rem;
-  border-radius: 8px;
+  padding: 66px 109.5px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 400px;
+  width: 507px;
+  height: 498px;
+  gap: 56px;
 }
 .login-title {
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-weight: 400;
+  font-size: 46px;
   color: #161616;
+  margin-bottom: 56px;
 }
 .login-button {
-  width: 100%;
-  margin-top: 1rem;
+  font-size: 14px;
+  width: 288px;
+  margin-top: 48px;
 }
 cv-inline-notification {
   margin-top: 1rem;
 }
+.login-form {
+
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.email-form-input {
+  font-size: 14px;
+  width: 288px;
+  margin-bottom: 16px;
+}
+
+.password-form-input {
+  font-size: 14px;
+  width: 288px;
+}
+
+
 </style>
