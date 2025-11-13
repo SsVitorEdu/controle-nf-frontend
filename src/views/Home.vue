@@ -32,14 +32,14 @@
           <cv-column :sm="4" :md="4" :lg="4">
             <router-link to="/secretaria" class="tile-link">
               <cv-tile class="nav-tile">
-                Secretária <UserAvatar class="tile-icon" />
+                Secretária <Building class="tile-icon" />
               </cv-tile>
             </router-link>
           </cv-column>
           <cv-column :sm="4" :md="4" :lg="4">
              <router-link to="/fornecedor" class="tile-link">
               <cv-tile class="nav-tile">
-                Fornecedor <Building class="tile-icon" />
+                Fornecedor <Delivery class="tile-icon" />
               </cv-tile>
             </router-link>
           </cv-column>
@@ -51,33 +51,41 @@
 </template>
 
 <script>
-
-import Document from '@carbon/icons-vue/es/document/32';
+// 1. Importar os ícones CORRETOS do Figma
+import Document from '@carbon/icons-vue/es/document/32'; // <-- CORRIGIDO
 import Launch from '@carbon/icons-vue/es/launch/32';
 import DocumentBlank from '@carbon/icons-vue/es/document--blank/32';
-import UserAvatar from '@carbon/icons-vue/es/user--avatar/32';
-import Building from '@carbon/icons-vue/es/building/32';
+import Building from '@carbon/icons-vue/es/building/32'; // Prédio
+import Delivery from '@carbon/icons-vue/es/delivery/32'; // Caminhão
+
+// 2. Importar os componentes de layout
+import { CvTile, CvGrid, CvRow, CvColumn } from '@carbon/vue';
 
 export default {
   name: 'HomeView',
   components: {
-
-    Document,
+    // 3. Registrar TUDO (Ícones e Layout)
+    Document, // <-- CORRIGIDO
     Launch,
     DocumentBlank,
-    UserAvatar,
-    Building
+    Building,
+    Delivery,
+    CvTile,
+    CvGrid,
+    CvRow,
+    CvColumn
   }
 }
 </script>
 
 <style scoped>
+/* Estilos do Figma (COM CORES CORRIGIDAS) */
 .home-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #0f62fe;
+  background: #0f62fe; /* Fundo azul IBM Carbon */
 }
 
 .home-box {
@@ -92,35 +100,37 @@ export default {
 .home-title {
   margin-bottom: 2rem;
   font-weight: 400;
-  color: #161616;
+  color: #161616; /* Título "Início" é preto mesmo */
 }
 
 .nav-tile {
-  background-color: #f4f4f4; 
+  background-color: #f4f4f4; /* Fundo cinza claro para os tiles */
   border: 1px solid #e0e0e0;
   min-height: 100px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   font-size: 1.1rem;
-  color: #161616;
+  
+  color: #0f62fe; /* CORREÇÃO: Texto do tile em azul */
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .nav-tile:hover {
   background-color: #e8e8e8;
-  border-color: #c6c6c6;
+  border-color: #0f62fe; /* CORREÇÃO: Borda azul no hover */
 }
 
 .tile-icon {
-  fill: #161616;
+  fill: #0f62fe; /* CORREÇÃO: Ícone em azul */
 }
 
 .tile-link {
-  text-decoration: none;
+  text-decoration: none; /* Tirar sublinhado do link */
 }
 
+/* Espaçamento entre as linhas da grid */
 cv-row {
   margin-bottom: 1.5rem;
 }
