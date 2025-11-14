@@ -19,7 +19,7 @@
           <cv-column :lg="3">
             <cv-date-picker
               date-label="Data do processo"
-              placeholder="mm/dd/yyyy"
+              placeholder="dd/MM/yyyy"
               v-model="processoModel.dataSaidaCompras"
             />
           </cv-column>
@@ -53,10 +53,10 @@
             <cv-text-input label="Número do Processo" v-model.trim="processoModel.numeroProcesso" placeholder="Digite o número do processo" />
           </cv-column>
           <cv-column :lg="3">
-             <cv-text-input label="Descrição (Apenas Layout)" disabled v-model.trim="processoModel.descricao" placeholder="Campo não existe no backend" />
+             <cv-text-input label="Descrição" v-model.trim="processoModel.descricao" placeholder="A descrição aparecerá aqui" />
           </cv-column>
           <cv-column :lg="3">
-            <cv-select label="Tipo" v-model="processoModel.tipoProcesso">
+             <cv-select label="Tipo" v-model="processoModel.tipoProcesso">
               <cv-select-option disabled selected hidden value="">
                 Selecione um tipo
               </cv-select-option>
@@ -70,16 +70,16 @@
       <cv-grid class="button-grid">
         <cv-row>
           <cv-column :lg="3">
-            <cv-button class="btn-full-width" kind="tertiary" @click="salvar">
-              Inserir <Add class="btn-icon-tertiary" />
+            <cv-button class="btn-full-width" kind="primary" @click="salvar">
+              Inserir <Add class="btn-icon" />
             </cv-button>
           </cv-column>
           <cv-column :lg="3">
-            <cv-button class="btn-full-width" kind="tertiary" @click="limpar">
-              Limpar <Clean class="btn-icon-tertiary" /> </cv-button>
+            <cv-button class="btn-full-width" kind="primary" @click="limpar">
+              Limpar <Clean class="btn-icon" /> </cv-button>
           </cv-column>
           <cv-column :lg="3">
-            <cv-button class="btn-full-width" kind="ghost" disabled>
+             <cv-button class="btn-full-width" kind="ghost" @click="deletar">
               Deletar <TrashCan class="btn-icon" />
             </cv-button>
           </cv-column>
@@ -118,19 +118,16 @@
 </template>
 
 <script>
-// Importando os Serviços
+
 import ProcessoService from '@/services/ProcessoService';
 import SecretariaService from '@/services/SecretariaService';
 import FornecedorService from '@/services/FornecedorService';
-
-// Importando Ícones
 import Add from '@carbon/icons-vue/es/add/32';
 import Clean from '@carbon/icons-vue/es/clean/32'; 
 import TrashCan from '@carbon/icons-vue/es/trash-can/32';
 import Edit from '@carbon/icons-vue/es/edit/32';
 import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
 
-// Importando TODOS os componentes Carbon que usamos
 import {
   CvGrid,
   CvRow,
@@ -145,23 +142,21 @@ import {
   CvLink
 } from '@carbon/vue';
 
-// Estado inicial do formulário (CORRIGIDO para bater com Processo.java)
 const getInitialProcessoModel = () => ({
   id: '',
   idProtocolo: '',
   dataSaidaCompras: '',
-  secretariaId: '', // (Este campo não existe no backend 'Processo.java', mas está no seu form)
+  secretariaId: '',
   idFornecedor: '',
   numeroOficio: '',
   numeroProcesso: '',
-  descricao: '', // (Este campo não existe no backend 'Processo.java', mas está no seu form)
+  descricao: '',
   tipoProcesso: '',
-  idOficio: '' // (Este campo existe no backend, mas não no seu form)
+  idOficio: '' 
 });
 
 export default {
   name: 'ProcessoView',
-  // Registrando TODOS os componentes
   components: {
     Add, Clean, TrashCan, Edit, ArrowLeft,
     CvGrid,
@@ -180,15 +175,15 @@ export default {
     return {
       processoModel: getInitialProcessoModel(),
       processos: [],
-       // CORREÇÃO: colunas para bater com Processo.java
       colunasTabela: [
-        { key: 'idProcesso', label: 'ID' },
-        { key: 'idProtocolo', label: 'ID Protocolo' },
-        { key: 'numeroOficio', label: 'Num Ofício' },
-        { key: 'numeroProcesso', label: 'Num Processo' },
-        { key: 'dataSaidaCompras', label: 'Data' },
-        { key: 'tipoProcesso', label: 'Tipo' },
-        { key: 'idFornecedor', label: 'ID Fornecedor' },
+        { key: 'protocolo', label: 'Protocolo' },
+        { key: 'numeroOficio', label: 'Número do ofício' },
+        { key: 'numeroProcesso', label: 'Número do processo' },
+        { key: 'data', label: 'Data' },
+        { key: 'tipo', label: 'Tipo' },
+        { key: 'secretaria', label: 'Secretaria' },
+        { key: 'descricao', label: 'Descrição' },
+        { key: 'fornecedor', label: 'Fornecedor' },
       ],
       secretarias: [],
       fornecedores: [],
@@ -197,13 +192,20 @@ export default {
     };
   },
   methods: {
-    // Métodos para buscar dados do backend
     async buscarProcessos() {
       try {
         const response = await ProcessoService.buscarTodos();
-        // CORREÇÃO: Removido o '.map()' que quebrava.
-        // O backend envia dados simples (IDs), e a tabela agora está pronta para eles.
-        this.processos = response.data;
+        this.processos = response.data.map(proc => ({
+          ...proc, 
+          protocolo: proc.idProtocolo,
+          numeroOficio: proc.numeroOficio,
+          numeroProcesso: proc.numeroProcesso,
+          data: proc.dataSaidaCompras,
+          tipo: proc.tipoProcesso,
+          secretaria: 'N/A', 
+          descricao: 'N/A', 
+          fornecedor: proc.idFornecedor 
+        }));
         this.totalDeItens = this.processos.length;
       } catch (error) {
         console.error('Erro ao buscar processos:', error);
@@ -225,11 +227,35 @@ export default {
         console.error('Erro ao buscar fornecedores:', error);
       }
     },
-    
-    // Ações dos Botões
     async salvar() {
       try {
-        // CORREÇÃO: Este JSON agora bate 100% com o seu Processo.java
+        
+        if (!this.processoModel.idProtocolo) {
+          alert('O campo "Protocolo do ofício" é obrigatório.');
+          return; 
+        }
+        if (!this.processoModel.dataSaidaCompras) {
+          alert('O campo "Data do processo" é obrigatória.');
+          return; 
+        }
+        if (!this.processoModel.idFornecedor) 
+          alert('O campo "Fornecedor" é obrigatório.');
+          return; 
+        
+        if (!this.processoModel.numeroOficio) {
+          alert('O campo "Número do ofício" é obrigatório.');
+          return; 
+        }
+        if (!this.processoModel.numeroProcesso) {
+          alert('O campo "Número do Processo" é obrigatório.');
+          return; 
+        }
+        if (!this.processoModel.tipoProcesso) {
+          alert('O campo "Tipo" é obrigatório.');
+          return; 
+        }
+
+        
         const dadosParaEnviar = {
            idProtocolo: parseInt(this.processoModel.idProtocolo) || null,
            dataSaidaCompras: this.processoModel.dataSaidaCompras || null,
@@ -237,35 +263,56 @@ export default {
            numeroOficio: parseInt(this.processoModel.numeroOficio) || null,
            numeroProcesso: parseInt(this.processoModel.numeroProcesso) || null,
            tipoProcesso: this.processoModel.tipoProcesso,
-           
-           // O seu form não tem 'idOficio', então vamos enviar null.
            idOficio: null 
-           
-           // 'idSecretaria' e 'descricao' não são enviados pois não existem no Processo.java
         };
         
         await ProcessoService.inserir(dadosParaEnviar);
+        
+        alert('Processo inserido com sucesso!'); 
+        
         this.limpar();
         this.buscarProcessos();
+        
       } catch(error) {
         console.error("Erro ao salvar processo:", error);
+          if (error.response) {
+            alert(`Não foi possível salvar. O servidor retornou um erro ${error.response.status}.`);
+        } else {
+            alert('Não foi possível salvar. Verifique sua conexão com o servidor.');
+        }
       }
     },
+    
     limpar() {
       this.processoModel = getInitialProcessoModel();
     },
+    
     async deletar() {
-      // (Lógica para o futuro)
+      if (!this.processoModel.id) {
+        alert('Por favor, clique em um processo na tabela para deletar.');
+        return;
+      }
+      try {
+        await ProcessoService.deletar(this.processoModel.id);
+        alert('Processo deletado com sucesso!'); 
+        this.limpar();
+        this.buscarProcessos();
+      } catch(error) {
+        console.error("Erro ao deletar processo:", error);
+        if (error.response) {
+            alert(`Não foi possível deletar. O servidor retornou um erro ${error.response.status}.`);
+        } else {
+            alert('Não foi possível deletar. Verifique sua conexão com o servidor.');
+        }
+      }
     },
 
-    // Ações da Tabela
     handleRowClick(event) {
       const linhaData = event.detail.row;
       console.log("Linha clicada:", linhaData);
 
-      // CORREÇÃO: Mapeamento simples para bater com o backend
       this.processoModel = {
-        id: linhaData.idProcesso,
+        id: linhaData.idProcesso, 
         idProtocolo: linhaData.idProtocolo,
         dataSaidaCompras: linhaData.dataSaidaCompras,
         idFornecedor: linhaData.idFornecedor,
@@ -273,8 +320,6 @@ export default {
         numeroProcesso: linhaData.numeroProcesso,
         tipoProcesso: linhaData.tipoProcesso,
         idOficio: linhaData.idOficio,
-
-        // Campos do form que não vêm do backend
         secretariaId: '', 
         descricao: ''
       };
@@ -283,7 +328,6 @@ export default {
       console.log('Paginação alterada:', event);
     }
   },
-  // 'created' é chamado quando o componente é carregado
   created() {
     this.buscarProcessos();
     this.buscarSecretarias();
@@ -293,14 +337,13 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos do Figma (Idênticos ao Oficio.vue) */
 .page-container-blue {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
   padding: 2rem;
-  background: #0f62fe; /* Fundo azul IBM Carbon */
+  background: #0f62fe; 
   box-sizing: border-box;
 }
 
@@ -336,7 +379,6 @@ export default {
   fill: #0f62fe;
 }
 
-/* Espaçamento entre as linhas da grid */
 cv-row {
   margin-bottom: 1rem;
 }
@@ -351,12 +393,6 @@ cv-row {
 
 .btn-icon {
   margin-left: 0.5rem;
-}
-
-/* Estilo para ícones em botões tertiary (azuis) */
-.btn-icon-tertiary {
-  margin-left: 0.5rem;
-  fill: #0f62fe; /* Azul IBM Carbon */
 }
 
 .table-container {

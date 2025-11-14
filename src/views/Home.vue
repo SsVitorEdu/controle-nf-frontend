@@ -50,19 +50,22 @@
 </template>
 
 <script>
+// 1. Importar os ícones CORRETOS do Figma
+import Document from '@carbon/icons-vue/es/document/32'; // <-- CORRIGIDO
+import Launch from '@carbon/icons-vue/es/launch/32';
+import DocumentBlank from '@carbon/icons-vue/es/document--blank/32';
+import Building from '@carbon/icons-vue/es/building/32'; // Prédio
+import Delivery from '@carbon/icons-vue/es/delivery/32'; // Caminhão
 
-import Document from '@carbon/icons-vue/es/document/16';
-import RepoArtifact from '@carbon/icons-vue/es/repo--artifact/16';
-import DocumentBlank from '@carbon/icons-vue/es/document--blank/16';
-import Delivery from '@carbon/icons-vue/es/delivery/16';
-import Building from '@carbon/icons-vue/es/building/16';
+// 2. Importar os componentes de layout
+import { CvTile, CvGrid, CvRow, CvColumn } from '@carbon/vue';
 
 export default {
   name: 'HomeView',
   components: {
-
-    Document,
-    RepoArtifact,
+    // 3. Registrar TUDO (Ícones e Layout)
+    Document, // <-- CORRIGIDO
+    Launch,
     DocumentBlank,
     Delivery,
     Building
@@ -83,7 +86,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #0f62fe;
+  background: #0f62fe; /* Fundo azul IBM Carbon */
 }
 
 .home-box {
@@ -107,75 +110,42 @@ export default {
 }
 
 .home-title {
-  font-size: 42px;
-  color: #161616;
-  text-align: left;
-  margin-top: 0;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  font-weight: 400;
+  color: #161616; /* Título "Início" é preto mesmo */
 }
 
 .nav-tile {
-  background: rgba(255, 255, 255, 0.00);
-  border: 1px solid #0F62FE;
+  background-color: #f4f4f4; /* Fundo cinza claro para os tiles */
+  border: 1px solid #e0e0e0;
+  min-height: 100px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  font-size: 14px;
-  color: #0F62FE;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
+  font-size: 1.1rem;
+  
+  color: #0f62fe; /* CORREÇÃO: Texto do tile em azul */
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-.grid{
-  padding-left: 0;
-  padding-right: 0;
+.nav-tile:hover {
+  background-color: #e8e8e8;
+  border-color: #0f62fe; /* CORREÇÃO: Borda azul no hover */
 }
 
 
 .tile-icon {
-  fill: #0F62FE;
+  fill: #0f62fe; /* CORREÇÃO: Ícone em azul */
 }
 
 .tile-link {
-  text-decoration: none;
-  width: 100%;
-  height: 100%;
+  text-decoration: none; /* Tirar sublinhado do link */
 }
 
-.cima, .baixo {
-  display: flex;
-  justify-content: flex-start;
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.cima {
-  align-items: flex-start;
-  margin-bottom: 10px;
-}
-
-.Oficio,
-.Processo,
-.NotaFiscal {
-  width: 137.3333px;
-  height: 80px;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.Secretaria,
-.Fornecedor {
-  width: 211px;
-  height: 80px;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.Oficio,
-.Processo,
-.Secretaria {
-  margin-right: 10px;
+/* Espaçamento entre as linhas da grid */
+cv-row {
+  margin-bottom: 1.5rem;
 }
 
 </style>

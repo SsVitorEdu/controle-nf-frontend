@@ -11,18 +11,18 @@
         </router-link>
       </div>
 
-      <cv-grid class="bx--no-gutter">
+      <cv-grid>
         <cv-row>
-          <cv-column :lg="3">
+          <cv-column :lg="6">
             <cv-text-input label="Nome da secretaria" v-model.trim="secretariaModel.nome" placeholder="Digite o nome da secretaria" />
           </cv-column>
-          <cv-column :lg="2">
+          <cv-column :lg="6">
             <cv-text-input label="ID" v-model="secretariaModel.id" disabled placeholder="O ID aparecerá aqui" />
           </cv-column>
         </cv-row>
       </cv-grid>
 
-      <cv-grid class="button-grid bx--no-gutter">
+      <cv-grid class="button-grid">
         <cv-row>
           <cv-column :lg="4">
             <cv-button class="btn-full-width" kind="tertiary" @click="salvar">
@@ -35,7 +35,7 @@
             </cv-button>
           </cv-column>
           <cv-column :lg="4">
-            <cv-button class="btn-full-width deletar" kind="ghost" @click="deletar" disabled>
+            <cv-button class="btn-full-width" kind="ghost" @click="deletar">
               Deletar <TrashCan class="btn-icon" />
             </cv-button>
           </cv-column>
@@ -43,13 +43,13 @@
       </cv-grid>
 
       <div class="table-container">
-        <h2 class="textoSecretaria">Secretarias</h2>
-        <p class="frase">Nesta tabela estão todas as secretarias cadastrados</p>
+        <h2>Secretarias</h2>
+        <p>Nesta tabela estão todas as secretarias cadastrados</p>
         
         <cv-data-table
           :columns="colunasTabela"
           :data="secretarias"
-          @select-row="handleRowSelect" >
+          @row-click="handleRowSelect"
         >
         </cv-data-table>
         
@@ -69,16 +69,11 @@
 </template>
 
 <script>
-// Importando os Serviços
 import SecretariaService from '@/services/SecretariaService';
-
-// Importando Ícones
-import Add from '@carbon/icons-vue/es/add/20';
-import Clean from '@carbon/icons-vue/es/clean/20';
-import TrashCan from '@carbon/icons-vue/es/trash-can/20';
-import ArrowLeft from '@carbon/icons-vue/es/arrow--left/16';
-
-// Importando TODOS os componentes Carbon que usamos
+import Add from '@carbon/icons-vue/es/add/32';
+import Clean from '@carbon/icons-vue/es/clean/32';
+import TrashCan from '@carbon/icons-vue/es/trash-can/32';
+import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
 import {
   CvGrid,
   CvRow,
@@ -89,8 +84,6 @@ import {
   CvPagination,
   CvLink
 } from '@carbon/vue';
-
-// Estado inicial do formulário
 const getInitialSecretariaModel = () => ({
   id: '',
   nome: ''
@@ -98,9 +91,8 @@ const getInitialSecretariaModel = () => ({
 
 export default {
   name: 'SecretariaView',
-  // Registrando TODOS os componentes (ERRO DE SINTAXE CORRIGIDO)
   components: {
-    Add, Clean, TrashCan, ArrowLeft, // 'Undo' foi removido
+    Add, Clean, TrashCan, ArrowLeft,
     CvGrid,
     CvRow,
     CvColumn,
@@ -114,7 +106,6 @@ export default {
     return {
       secretariaModel: getInitialSecretariaModel(),
       secretarias: [],
-      // MAPA DA TABELA (CORRIGIDO)
       colunasTabela: [
         { key: 'idSecretaria', label: 'ID' },
         { key: 'nomeSecretaria', label: 'Nome da secretaria' },
@@ -135,10 +126,11 @@ export default {
     },
     
     async salvar() {
-
-      if(this.secretariaModel.nome.length < 4) {
-        alert('O nome precisa ter no mínimo 4 letras');
+      if (!this.secretariaModel.nome) {
+        alert('Por favor, digite o nome da secretaria.');
+        return; 
       }
+
       try {
         const dadosParaEnviar = {
            nomeSecretaria: this.secretariaModel.nome,
@@ -169,14 +161,12 @@ export default {
         console.error("Erro ao deletar secretaria:", error);
       }
     },
-
-    // MAPA DO CLIQUE (CORRIGIDO)
     handleRowSelect(event) {
       const linhaData = event.detail.row;
       console.log("Linha selecionada:", linhaData);
       this.secretariaModel = {
         id: linhaData.idSecretaria,
-        nome: linhaData.nomeSecretaria // Corrigido de 'nome'
+        nome: linhaData.nomeSecretaria 
       };
     },
 
@@ -191,7 +181,6 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos do Figma */
 .page-container-blue {
   display: flex;
   justify-content: center;
@@ -204,9 +193,10 @@ export default {
 
 .content-box {
   background: #fff;
-  padding: 32px;
-  font-family: "IBM Plex Sans", sans-serif;
-  width: 1376px;
+  padding: 2rem 3rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
   max-width: 1400px;
 }
 
@@ -214,7 +204,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .page-title {
@@ -231,63 +223,29 @@ export default {
   fill: #0f62fe;
 }
 
-.btn-full-width:disabled{
-  border: 1px solid #C6C6C6;
-}
-
-.deletar:enabled{
-  border: 1px solid #0f62fe;
-}
-
 cv-row {
   margin-bottom: 1rem;
 }
 
 .button-grid {
-  margin-top: 40px;
+  margin-top: 1.5rem;
 }
 
 .btn-full-width {
   width: 100%;
 }
 
-h1{
-  font-size: 42px;
-  font-style: normal;
-  font-weight: 300;
-  line-height: 50px;
-}
-
 .btn-icon {
-  margin-left: 40px;
+  margin-left: 0.5rem;
 }
 
 .btn-icon-tertiary {
-  margin-left: 64px;
+  margin-left: 0.5rem;
   fill: #0f62fe;
 }
 
-.textoSecretaria, .frase{
-  background-color: #F4F4F4;
-  margin-bottom: 0;
-  margin-top: 0;
-}
-
-.textoSecretaria{
-  font-size: 20px;
-}
-
-.frase{
-  font-size: 14px;
-}
-
-.btn-full-width:hover .btn-icon-tertiary {
-  fill: #FFFFFF;
-}
-
-
 .table-container {
-  margin-top: 40px;
+  margin-top: 3rem;
 }
 
 cv-pagination {

@@ -1,8 +1,12 @@
-// src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import store from '../store' 
+import HomeView from '../views/Home.vue'
 import LoginView from '../views/Login.vue'
-import HomeView from '../views/Home.vue' // Importar o Home
+import OficioView from '../views/Oficio.vue'
+import ProcessoView from '../views/Processo.vue'
+import NotaFiscalView from '../views/NotaFiscal.vue'
+import FornecedorView from '../views/Fornecedor.vue'
+import SecretariaView from '../views/Secretaria.vue'
+import ProtocoloView from '@/views/Protocolo.vue'
 
 const routes = [
   {
@@ -13,43 +17,38 @@ const routes = [
   {
     path: '/home',
     name: 'home',
-    component: HomeView, // Usar o componente importado
-    meta: { requiresAuth: true } 
+    component: HomeView
   },
-  
-  // --- Adicionando as novas rotas do Figma ---
   {
     path: '/oficio',
     name: 'oficio',
-    // Vamos criar o componente Oficio.vue logo abaixo
-    component: () => import('../views/Oficio.vue'),
-    meta: { requiresAuth: true }
+    component: OficioView
   },
   {
     path: '/processo',
     name: 'processo',
-    component: () => import('../views/Processo.vue'),
-    meta: { requiresAuth: true }
+    component: ProcessoView
   },
   {
     path: '/nota-fiscal',
     name: 'nota-fiscal',
-    component: () => import('../views/NotaFiscal.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/secretaria',
-    name: 'secretaria',
-    component: () => import('../views/Secretaria.vue'),
-    meta: { requiresAuth: true }
+    component: NotaFiscalView
   },
   {
     path: '/fornecedor',
     name: 'fornecedor',
-    component: () => import('../views/Fornecedor.vue'),
-    meta: { requiresAuth: true }
+    component: FornecedorView
+  },
+  {
+    path: '/secretaria',
+    name: 'secretaria',
+    component: SecretariaView
+  },
+  {
+    path: '/protocolo',
+    name: 'protocolo',
+    component: ProtocoloView
   }
-  // --- Fim das novas rotas ---
 ]
 
 const router = createRouter({
@@ -57,17 +56,4 @@ const router = createRouter({
   routes
 })
 
-// A "Guarda de Rota"
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!store.state.user) {
-      next({ name: 'login' })
-    } else {
-      next() 
-    }
-  } else {
-    next() 
-  }
-})
-
-export default router 
+export default router
