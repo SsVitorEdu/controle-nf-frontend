@@ -13,6 +13,7 @@
 
       <cv-grid>
         <cv-row>
+          
           <cv-column :lg="4">
             <cv-text-input label="CNPJ" v-model.trim="fornecedorModel.cnpj" placeholder="Digite o CNPJ da empresa" />
           </cv-column>
@@ -52,7 +53,7 @@
         <cv-data-table
           :columns="colunasTabela"
           :data="fornecedores"
-          @row-click="handleRowClick"
+          @row-click="handleRowClick" 
         >
         </cv-data-table>
         
@@ -72,16 +73,11 @@
 </template>
 
 <script>
-// Importando os Serviços
 import FornecedorService from '@/services/FornecedorService';
-
-// Importando Ícones
 import Add from '@carbon/icons-vue/es/add/32';
 import Clean from '@carbon/icons-vue/es/clean/32';
 import TrashCan from '@carbon/icons-vue/es/trash-can/32';
 import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
-
-// Importando TODOS os componentes Carbon que usamos
 import {
   CvGrid,
   CvRow,
@@ -93,35 +89,27 @@ import {
   CvLink
 } from '@carbon/vue';
 
-// Estado inicial do formulário
 const getInitialFornecedorModel = () => ({
   id: '',
   cnpj: '',
-  nome: ''
+  nome: '',
 });
 
 export default {
   name: 'FornecedorView',
-  // Registrando TODOS os componentes
   components: {
     Add, Clean, TrashCan, ArrowLeft,
-    CvGrid,
-    CvRow,
-    CvColumn,
-    CvTextInput,
-    CvButton,
-    CvDataTable,
-    CvPagination,
-    CvLink
+    CvGrid, CvRow, CvColumn, CvTextInput,
+    CvButton, CvDataTable, CvPagination, CvLink
   },
   data() {
     return {
       fornecedorModel: getInitialFornecedorModel(),
       fornecedores: [],
+
       colunasTabela: [
         { key: 'idFornecedor', label: 'ID' },
         { key: 'cnpj', label: 'CNPJ' },
-        // CORRIGIDO: de 'nome' para 'nomeEmpresa' para bater com Fornecedor.java
         { key: 'nomeEmpresa', label: 'Nome da empresa' },
       ],
       totalDeItens: 0,
@@ -129,7 +117,6 @@ export default {
     };
   },
   methods: {
-    // Métodos para buscar dados do backend
     async buscarFornecedores() {
       try {
         const response = await FornecedorService.buscarTodos();
@@ -140,15 +127,16 @@ export default {
       }
     },
     
-    // Ações dos Botões
     async salvar() {
+      if (!this.fornecedorModel.nome || !this.fornecedorModel.cnpj) {
+        alert('Por favor, preencha o CNPJ e o Nome da empresa.');
+        return;
+      }
       try {
-        // CORRIGIDO: de 'nome' para 'nomeEmpresa' para bater com Fornecedor.java
         const dadosParaEnviar = {
            cnpj: this.fornecedorModel.cnpj,
            nomeEmpresa: this.fornecedorModel.nome,
         };
-        
         await FornecedorService.inserir(dadosParaEnviar);
         this.limpar();
         this.buscarFornecedores();
@@ -159,40 +147,36 @@ export default {
     limpar() {
       this.fornecedorModel = getInitialFornecedorModel();
     },
-    // CORRIGIDO: Lógica do 'deletar' implementada
     async deletar() {
       if (!this.fornecedorModel.id) {
         alert('Por favor, clique em um fornecedor na tabela para deletar.');
         return;
       }
-
       try {
         await FornecedorService.deletar(this.fornecedorModel.id);
         this.limpar();
         this.buscarFornecedores();
-
       } catch(error) {
         console.error("Erro ao deletar fornecedor:", error);
       }
     },
 
-    // Ações da Tabela
+
     handleRowClick(event) {
-      const linhaData = event.detail.row;
-      console.log("Linha clicada:", linhaData);
+      console.log("CLIQUE FUNCIONOU! Dados brutos:", event.detail.row); 
       
-      // CORRIGIDO: de 'linhaData.nome' para 'linhaData.nomeEmpresa'
+      const linhaData = event.detail.row; 
       this.fornecedorModel = {
         id: linhaData.idFornecedor,
         cnpj: linhaData.cnpj,
         nome: linhaData.nomeEmpresa
+        
       };
     },
     handlePageChange(event) {
       console.log('Paginação alterada:', event);
     }
   },
-  // 'created' é chamado quando o componente é carregado
   created() {
     this.buscarFornecedores();
   }
@@ -200,14 +184,13 @@ export default {
 </script>
 
 <style scoped>
-/* ... (seus estilos permanecem os mesmos) ... */
 .page-container-blue {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
   padding: 2rem;
-  background: #0f62fe; /* Fundo azul IBM Carbon */
+  background: #0f62fe;
   box-sizing: border-box;
 }
 
@@ -243,7 +226,6 @@ export default {
   fill: #0f62fe;
 }
 
-/* Espaçamento entre as linhas da grid */
 cv-row {
   margin-bottom: 1rem;
 }
@@ -260,10 +242,9 @@ cv-row {
   margin-left: 0.5rem;
 }
 
-/* Estilo para ícones em botões tertiary (azuis) */
 .btn-icon-tertiary {
   margin-left: 0.5rem;
-  fill: #0f62fe; /* Azul IBM Carbon */
+  fill: #0f62fe;
 }
 
 .table-container {

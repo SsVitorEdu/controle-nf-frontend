@@ -51,21 +51,17 @@
 </template>
 
 <script>
-// 1. Importar os ícones CORRETOS do Figma
-import Document from '@carbon/icons-vue/es/document/32'; // <-- CORRIGIDO
+import Document from '@carbon/icons-vue/es/document/32';
 import Launch from '@carbon/icons-vue/es/launch/32';
 import DocumentBlank from '@carbon/icons-vue/es/document--blank/32';
-import Building from '@carbon/icons-vue/es/building/32'; // Prédio
-import Delivery from '@carbon/icons-vue/es/delivery/32'; // Caminhão
-
-// 2. Importar os componentes de layout
+import Building from '@carbon/icons-vue/es/building/32'; 
+import Delivery from '@carbon/icons-vue/es/delivery/32'; 
 import { CvTile, CvGrid, CvRow, CvColumn } from '@carbon/vue';
 
 export default {
   name: 'HomeView',
   components: {
-    // 3. Registrar TUDO (Ícones e Layout)
-    Document, // <-- CORRIGIDO
+    Document, 
     Launch,
     DocumentBlank,
     Building,
@@ -79,13 +75,12 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos do Figma (COM CORES CORRIGIDAS) */
 .home-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #0f62fe; /* Fundo azul IBM Carbon */
+  background: #0f62fe; 
 }
 
 .home-box {
@@ -100,11 +95,11 @@ export default {
 .home-title {
   margin-bottom: 2rem;
   font-weight: 400;
-  color: #161616; /* Título "Início" é preto mesmo */
+  color: #161616; 
 }
 
 .nav-tile {
-  background-color: #f4f4f4; /* Fundo cinza claro para os tiles */
+  background-color: #f4f4f4; 
   border: 1px solid #e0e0e0;
   min-height: 100px;
   display: flex;
@@ -112,25 +107,24 @@ export default {
   align-items: flex-start;
   font-size: 1.1rem;
   
-  color: #0f62fe; /* CORREÇÃO: Texto do tile em azul */
+  color: #0f62fe;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .nav-tile:hover {
   background-color: #e8e8e8;
-  border-color: #0f62fe; /* CORREÇÃO: Borda azul no hover */
+  border-color: #0f62fe; 
 }
 
 .tile-icon {
-  fill: #0f62fe; /* CORREÇÃO: Ícone em azul */
+  fill: #0f62fe; 
 }
 
 .tile-link {
-  text-decoration: none; /* Tirar sublinhado do link */
+  text-decoration: none;
 }
 
-/* Espaçamento entre as linhas da grid */
 cv-row {
   margin-bottom: 1.5rem;
 }

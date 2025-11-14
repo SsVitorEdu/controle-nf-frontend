@@ -49,7 +49,7 @@
         <cv-data-table
           :columns="colunasTabela"
           :data="secretarias"
-          @select-row="handleRowSelect" >
+          @row-click="handleRowSelect"
         >
         </cv-data-table>
         
@@ -69,16 +69,11 @@
 </template>
 
 <script>
-// Importando os Serviços
 import SecretariaService from '@/services/SecretariaService';
-
-// Importando Ícones
 import Add from '@carbon/icons-vue/es/add/32';
 import Clean from '@carbon/icons-vue/es/clean/32';
 import TrashCan from '@carbon/icons-vue/es/trash-can/32';
 import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
-
-// Importando TODOS os componentes Carbon que usamos
 import {
   CvGrid,
   CvRow,
@@ -89,8 +84,6 @@ import {
   CvPagination,
   CvLink
 } from '@carbon/vue';
-
-// Estado inicial do formulário
 const getInitialSecretariaModel = () => ({
   id: '',
   nome: ''
@@ -98,9 +91,8 @@ const getInitialSecretariaModel = () => ({
 
 export default {
   name: 'SecretariaView',
-  // Registrando TODOS os componentes (ERRO DE SINTAXE CORRIGIDO)
   components: {
-    Add, Clean, TrashCan, ArrowLeft, // 'Undo' foi removido
+    Add, Clean, TrashCan, ArrowLeft,
     CvGrid,
     CvRow,
     CvColumn,
@@ -114,7 +106,6 @@ export default {
     return {
       secretariaModel: getInitialSecretariaModel(),
       secretarias: [],
-      // MAPA DA TABELA (CORRIGIDO)
       colunasTabela: [
         { key: 'idSecretaria', label: 'ID' },
         { key: 'nomeSecretaria', label: 'Nome da secretaria' },
@@ -135,6 +126,11 @@ export default {
     },
     
     async salvar() {
+      if (!this.secretariaModel.nome) {
+        alert('Por favor, digite o nome da secretaria.');
+        return; 
+      }
+
       try {
         const dadosParaEnviar = {
            nomeSecretaria: this.secretariaModel.nome,
@@ -165,14 +161,12 @@ export default {
         console.error("Erro ao deletar secretaria:", error);
       }
     },
-
-    // MAPA DO CLIQUE (CORRIGIDO)
     handleRowSelect(event) {
       const linhaData = event.detail.row;
       console.log("Linha selecionada:", linhaData);
       this.secretariaModel = {
         id: linhaData.idSecretaria,
-        nome: linhaData.nomeSecretaria // Corrigido de 'nome'
+        nome: linhaData.nomeSecretaria 
       };
     },
 
@@ -187,7 +181,6 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos do Figma */
 .page-container-blue {
   display: flex;
   justify-content: center;

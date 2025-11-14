@@ -5,7 +5,7 @@ export default {
     return apiClient.get('/oficio');
   },
   inserir(dadosOficio) {
-    // CORREÇÃO: A URL É '/oficio/inserir'
+
     return apiClient.post('/oficio/inserir', dadosOficio);
   },
   deletar(id) {

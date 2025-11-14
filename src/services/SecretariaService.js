@@ -1,7 +1,4 @@
-// src/services/SecretariaService.js
 import apiClient from './api';
-
-// Assumindo os endpoints REST padrão do seu SecretariaController.java
 export default {
   buscarTodas() {
     return apiClient.get('/secretaria');
