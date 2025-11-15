@@ -11,23 +11,22 @@
         </router-link>
       </div>
 
-      <cv-grid>
+      <cv-grid class="bx--no-gutter">
         <cv-row>
           <cv-column :lg="3">
-            <cv-text-input label="ID do Protocolo" v-model.trim="nfModel.idProtocolo" placeholder="Digite o ID do protocolo" />
+            <cv-text-input label="Protocolo da nota" v-model.trim="nfModel.idProtocolo" placeholder="Digite o ID do protocolo" />
           </cv-column>
           <cv-column :lg="3">
              <cv-date-picker
               date-label="Data do protocolo"
-              placeholder="dd/MM/yyyy"
+              placeholder="mm/dd/yyyy"
               v-model="nfModel.dataProtocolo"
-              disabled 
             />
           </cv-column>
           <cv-column :lg="3">
             <cv-date-picker
               date-label="Data de chegada"
-              placeholder="dd/MM/yyyy"
+              placeholder="mm/dd/yyyy"
               v-model="nfModel.dataChegada"
             />
           </cv-column>
@@ -36,39 +35,27 @@
           </cv-column>
         </cv-row>
         
-        <cv-row>
+        <cv-row >
           <cv-column :lg="3">
             <cv-text-input label="Número da nota" v-model.trim="nfModel.numeroNota" placeholder="Digite o número da nota" />
           </cv-column>
           <cv-column :lg="3">
             <cv-date-picker
-              date-label="Data da nota (Emissão)"
-              placeholder="dd/MM/yyyy"
+              date-label="Data da nota"
+              placeholder="mm/dd/yyyy"
               v-model="nfModel.dataEmissao"
             />
           </cv-column>
           <cv-column :lg="3">
-             <cv-select label="Processo" v-model="nfModel.idProcesso">
-              <cv-select-option disabled selected hidden value="">
-                Selecione um processo
-              </cv-select-option>
-              <cv-select-option v-for="proc in processos" :key="proc.idProcesso" :value="proc.idProcesso">
-                {{ proc.numeroProcesso }} </cv-select-option>
-            </cv-select>
+             <cv-text-input label="Número do Processo" v-model.trim="nfModel.idProcesso" placeholder="Digite o ID do processo" />
           </cv-column>
           <cv-column :lg="3">
-             <cv-text-input label="ID do Fornecedor" v-model.trim="nfModel.idFornecedor" placeholder="Digite o ID do fornecedor" />
-          </cv-column>
-        </cv-row>
-        
-        <cv-row>
-           <cv-column :lg="3">
-            <cv-text-input label="ID da Nota Fiscal" v-model="nfModel.id" disabled placeholder="O ID aparecerá aqui" />
+            <cv-text-input label="ID" v-model="nfModel.id" disabled placeholder="O ID aparecerá aqui" />
           </cv-column>
         </cv-row>
         </cv-grid>
 
-      <cv-grid class="button-grid">
+      <cv-grid class="button-grid bx--no-gutter">
         <cv-row>
           <cv-column :lg="3">
             <cv-button class="btn-full-width" kind="tertiary" @click="salvar">
@@ -80,12 +67,12 @@
               Limpar <Clean class="btn-icon-tertiary" /> </cv-button>
           </cv-column>
           <cv-column :lg="3">
-            <cv-button class="btn-full-width" kind="ghost" @click="deletar">
+            <cv-button class="btn-full-width deletar" kind="ghost" @click="deletar" disabled>
               Deletar <TrashCan class="btn-icon" />
             </cv-button>
           </cv-column>
           <cv-column :lg="3">
-            <cv-button class="btn-full-width" kind="ghost" disabled>
+            <cv-button class="btn-full-width alterar" kind="ghost" disabled>
               Alterar <Edit class="btn-icon" />
             </cv-button>
           </cv-column>
@@ -93,8 +80,7 @@
       </cv-grid>
 
       <div class="table-container">
-        <h2>Notas Fiscais Cadastradas</h2>
-        <p>Nesta tabela estão todas as notas fiscais cadastrados</p>
+        <h2 class="notaFiscal">Notas fiscais</h2> <p class="frase">Nesta tabela estão todas as notas fiscais cadastrados</p>
         
         <cv-data-table
           :columns="colunasTabela"
@@ -119,40 +105,45 @@
 </template>
 
 <script>
+// Importando os Serviços
 import NFService from '@/services/NFService';
-import ProcessoService from '@/services/ProcessoService';
-import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32';
-import TrashCan from '@carbon/icons-vue/es/trash-can/32';
-import Edit from '@carbon/icons-vue/es/edit/32';
-import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
+
+// Importando Ícones
+import Add from '@carbon/icons-vue/es/add/16';
+import Clean from '@carbon/icons-vue/es/clean/16';
+import TrashCan from '@carbon/icons-vue/es/trash-can/16';
+import Edit from '@carbon/icons-vue/es/edit/16';
+import ArrowLeft from '@carbon/icons-vue/es/arrow--left/20';
+
+// Importando TODOS os componentes Carbon que usamos
 import {
   CvGrid,
   CvRow,
   CvColumn,
   CvTextInput,
   CvDatePicker,
-  CvSelect,         
-  CvSelectOption,   
   CvButton,
   CvDataTable,
   CvPagination,
   CvLink
 } from '@carbon/vue';
+
+// Estado inicial do formulário (Alinhado com o formulário do Figma)
 const getInitialNFModel = () => ({
   id: '',
   idProtocolo: '',
-  dataProtocolo: '', 
+  dataProtocolo: '', // (Só existe no Figma)
   dataChegada: '',
   valorNota: '',
   numeroNota: '',
   dataEmissao: '',
   idProcesso: '',
-  idFornecedor: '' 
+  idFornecedor: '' // (Existe no NF.java, mas não no Figma)
 });
 
 export default {
   name: 'NotaFiscalView',
+  // Registrando TODOS os componentes
   components: {
     Add, Clean, TrashCan, Edit, ArrowLeft,
     CvGrid,
@@ -160,8 +151,6 @@ export default {
     CvColumn,
     CvTextInput,
     CvDatePicker,
-    CvSelect,         
-    CvSelectOption,  
     CvButton,
     CvDataTable,
     CvPagination,
@@ -171,14 +160,14 @@ export default {
     return {
       nfModel: getInitialNFModel(),
       notasFiscais: [],
-      processos: [], 
+      // CORREÇÃO: Colunas alinhadas com os campos do NF.java
       colunasTabela: [
         { key: 'idNotaFiscal', label: 'ID' },
         { key: 'dataChegada', label: 'Data de chegada' },
         { key: 'idProtocolo', label: 'ID Protocolo' },
         { key: 'numeroNota', label: 'Número da nota' },
         { key: 'valorNota', label: 'Valor da nota' },
-        { key: 'dataEmissao', label: 'Data da nota (Emissão)' },
+        { key: 'dataEmissao', label: 'Data da nota' },
         { key: 'idProcesso', label: 'ID Processo' },
         { key: 'idFornecedor', label: 'ID Fornecedor' },
       ],
@@ -187,8 +176,11 @@ export default {
     };
   },
   methods: {
+    // Métodos para buscar dados do backend
     async buscarNotasFiscais() {
       try {
+        // CORREÇÃO: Removido o '.map()' que quebrava a lógica.
+        // O backend envia os dados simples, e a tabela agora está pronta para recebê-los.
         const response = await NFService.buscarTodas();
         this.notasFiscais = response.data;
         this.totalDeItens = this.notasFiscais.length;
@@ -196,22 +188,11 @@ export default {
         console.error('Erro ao buscar notas fiscais:', error);
       }
     },
-    async buscarProcessos() {
-      try {
-        const response = await ProcessoService.buscarTodos();
-        this.processos = response.data;
-      } catch (error) {
-        console.error('Erro ao buscar processos:', error);
-      }
-    }, 
+    
+    // Ações dos Botões
     async salvar() {
-
-      if (!this.nfModel.idProcesso || !this.nfModel.idFornecedor) {
-        alert('Por favor, preencha pelo menos o ID do Processo e o ID do Fornecedor.');
-        return;
-      }
-
       try {
+        // O JSON deve bater EXATAMENTE com o NF.java
         const dadosParaEnviar = {
            idProtocolo: parseInt(this.nfModel.idProtocolo) || null,
            dataChegada: this.nfModel.dataChegada || null,
@@ -219,6 +200,8 @@ export default {
            numeroNota: parseInt(this.nfModel.numeroNota) || null,
            dataEmissao: this.nfModel.dataEmissao || null,
            idProcesso: parseInt(this.nfModel.idProcesso) || null,
+           // O Figma não tem 'idFornecedor', então pegamos do 'nfModel'
+           // (que pode ser preenchido pelo clique na tabela)
            idFornecedor: parseInt(this.nfModel.idFornecedor) || null
         };
         
@@ -245,10 +228,13 @@ export default {
         console.error("Erro ao deletar nota fiscal:", error);
       }
     },
+
+    // Ações da Tabela
     handleRowClick(event) {
       const linhaData = event.detail.row;
       console.log("Linha clicada:", linhaData);
-
+      
+      // CORREÇÃO: Mapeamento simplificado para ler os IDs simples do backend
       this.nfModel = {
         id: linhaData.idNotaFiscal,
         idProtocolo: linhaData.idProtocolo,
@@ -259,21 +245,23 @@ export default {
         idProcesso: linhaData.idProcesso,
         idFornecedor: linhaData.idFornecedor,
         
-        dataProtocolo: '' 
+        // (Campos que só existem no formulário do Figma)
+        dataProtocolo: ''
       };
     },
     handlePageChange(event) {
       console.log('Paginação alterada:', event);
     }
   },
+  // 'created' é chamado quando o componente é carregado
   created() {
     this.buscarNotasFiscais();
-    this.buscarProcessos();
   }
 };
 </script>
 
 <style scoped>
+/* Estilos do Figma (Idênticos ao Oficio.vue) */
 .page-container-blue {
   display: flex;
   justify-content: center;
@@ -345,5 +333,41 @@ cv-pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+.notaFiscal, .frase{
+  background-color: #F4F4F4;
+  margin-bottom: 0;
+}
+
+.notaFiscal {
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 28px
+}
+
+.frase {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 128.571% */
+  letter-spacing: 0.16px;
+}
+
+button{
+  padding: 10px;
+}
+
+.deletar:enabled .alterar:enabled{
+  border: 1px solid #0f62fe;
+}
+
+.btn-full-width:hover .btn-icon-tertiary {
+  fill: #FFFFFF;
+}
+
+.btn-full-width:disabled{
+  border: 1px solid #C6C6C6;
 }
 </style>

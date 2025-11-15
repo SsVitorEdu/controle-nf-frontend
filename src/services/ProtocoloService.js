@@ -1,4 +1,7 @@
+// src/services/protocoloService.js
 import apiClient from './api';
+
+// Assumindo os endpoints REST padrão do seu protocoloController.java
 export default {
   buscarTodos() {
     return apiClient.get('/protocolo');
@@ -8,12 +11,12 @@ export default {
     return apiClient.get(`/protocolo/${id}`);
   },
 
-  inserir(dadosProtocolo) {
-    return apiClient.post('/protocolo/inserir', dadosProtocolo);
+  inserir(dadosprotocolo) {
+    return apiClient.post('/protocolo/inserir', dadosprotocolo);
   },
 
-  alterar(id, dadosProtocolo) {
-    return apiClient.post(`/protocolo/alterar`, dadosProtocolo);
+  alterar(id, dadosprotocolo) {
+    return apiClient.put(`/protocolo/${id}`, dadosprotocolo);
   },
 
   deletar(id) {

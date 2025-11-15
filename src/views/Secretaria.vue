@@ -1,7 +1,7 @@
 <template>
   <div class="page-container-blue">
     <div class="content-box">
-      
+
       <div class="header-container">
         <h1 class="page-title">Cadastro de Secretaria</h1>
         <router-link to="/home" class="back-link">
@@ -11,18 +11,18 @@
         </router-link>
       </div>
 
-      <cv-grid>
+      <cv-grid class="bx--no-gutter">
         <cv-row>
-          <cv-column :lg="6">
+          <cv-column :lg="4">
             <cv-text-input label="Nome da secretaria" v-model.trim="secretariaModel.nome" placeholder="Digite o nome da secretaria" />
           </cv-column>
-          <cv-column :lg="6">
+          <cv-column :lg="4">
             <cv-text-input label="ID" v-model="secretariaModel.id" disabled placeholder="O ID aparecerá aqui" />
           </cv-column>
         </cv-row>
       </cv-grid>
 
-      <cv-grid class="button-grid">
+      <cv-grid class="button-grid bx--no-gutter">
         <cv-row>
           <cv-column :lg="4">
             <cv-button class="btn-full-width" kind="tertiary" @click="salvar">
@@ -35,7 +35,7 @@
             </cv-button>
           </cv-column>
           <cv-column :lg="4">
-            <cv-button class="btn-full-width" kind="ghost" @click="deletar">
+            <cv-button class="btn-full-width deletar" kind="ghost" @click="deletar" disabled>
               Deletar <TrashCan class="btn-icon" />
             </cv-button>
           </cv-column>
@@ -43,23 +43,23 @@
       </cv-grid>
 
       <div class="table-container">
-        <h2>Secretarias</h2>
-        <p>Nesta tabela estão todas as secretarias cadastrados</p>
-        
+        <h2 class="titulo">Secretarias</h2>
+        <p class="frase">Nesta tabela estão todas as secretarias cadastrados</p>
+
         <cv-data-table
-          :columns="colunasTabela"
-          :data="secretarias"
-          @row-click="handleRowSelect"
-        >
+            :columns="colunasTabela"
+            :data="secretarias"
+            @select-row="handleRowSelect" >
+          >
         </cv-data-table>
-        
+
         <cv-pagination
-          :number-of-items="totalDeItens"
-          :page-size-options="[100]"
-          :page-sizes="[100]"
-          :value="1"
-          v-model:page-size="tamanhoPagina"
-          @change="handlePageChange"
+            :number-of-items="totalDeItens"
+            :page-size-options="[100]"
+            :page-sizes="[100]"
+            :value="1"
+            v-model:page-size="tamanhoPagina"
+            @change="handlePageChange"
         >
         </cv-pagination>
       </div>
@@ -69,11 +69,16 @@
 </template>
 
 <script>
+// Importando os Serviços
 import SecretariaService from '@/services/SecretariaService';
-import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32';
-import TrashCan from '@carbon/icons-vue/es/trash-can/32';
-import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
+
+// Importando Ícones
+import Add from '@carbon/icons-vue/es/add/20';
+import Clean from '@carbon/icons-vue/es/clean/20';
+import TrashCan from '@carbon/icons-vue/es/trash-can/20';
+import ArrowLeft from '@carbon/icons-vue/es/arrow--left/16';
+
+// Importando TODOS os componentes Carbon que usamos
 import {
   CvGrid,
   CvRow,
@@ -84,6 +89,8 @@ import {
   CvPagination,
   CvLink
 } from '@carbon/vue';
+
+// Estado inicial do formulário
 const getInitialSecretariaModel = () => ({
   id: '',
   nome: ''
@@ -91,8 +98,9 @@ const getInitialSecretariaModel = () => ({
 
 export default {
   name: 'SecretariaView',
+  // Registrando TODOS os componentes (ERRO DE SINTAXE CORRIGIDO)
   components: {
-    Add, Clean, TrashCan, ArrowLeft,
+    Add, Clean, TrashCan, ArrowLeft, // 'Undo' foi removido
     CvGrid,
     CvRow,
     CvColumn,
@@ -106,6 +114,7 @@ export default {
     return {
       secretariaModel: getInitialSecretariaModel(),
       secretarias: [],
+      // MAPA DA TABELA (CORRIGIDO)
       colunasTabela: [
         { key: 'idSecretaria', label: 'ID' },
         { key: 'nomeSecretaria', label: 'Nome da secretaria' },
@@ -124,18 +133,13 @@ export default {
         console.error('Erro ao buscar secretarias:', error);
       }
     },
-    
-    async salvar() {
-      if (!this.secretariaModel.nome) {
-        alert('Por favor, digite o nome da secretaria.');
-        return; 
-      }
 
+    async salvar() {
       try {
         const dadosParaEnviar = {
-           nomeSecretaria: this.secretariaModel.nome,
+          nomeSecretaria: this.secretariaModel.nome,
         };
-        
+
         await SecretariaService.inserir(dadosParaEnviar);
         this.limpar();
         this.buscarSecretarias();
@@ -143,7 +147,7 @@ export default {
         console.error("Erro ao salvar secretaria:", error);
       }
     },
-    
+
     limpar() {
       this.secretariaModel = getInitialSecretariaModel();
     },
@@ -161,12 +165,14 @@ export default {
         console.error("Erro ao deletar secretaria:", error);
       }
     },
+
+    // MAPA DO CLIQUE (CORRIGIDO)
     handleRowSelect(event) {
       const linhaData = event.detail.row;
       console.log("Linha selecionada:", linhaData);
       this.secretariaModel = {
         id: linhaData.idSecretaria,
-        nome: linhaData.nomeSecretaria 
+        nome: linhaData.nomeSecretaria // Corrigido de 'nome'
       };
     },
 
@@ -181,6 +187,7 @@ export default {
 </script>
 
 <style scoped>
+/* Estilos do Figma */
 .page-container-blue {
   display: flex;
   justify-content: center;
@@ -252,5 +259,41 @@ cv-pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+.titulo, .frase{
+  background-color: #F4F4F4;
+  margin-bottom: 0;
+}
+
+.titulo {
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 28px
+}
+
+.frase {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 128.571% */
+  letter-spacing: 0.16px;
+}
+
+button{
+  padding: 10px;
+}
+
+.deletar:enabled {
+  border: 1px solid #0f62fe;
+}
+
+.btn-full-width:hover .btn-icon-tertiary {
+  fill: #FFFFFF;
+}
+
+.btn-full-width:disabled{
+  border: 1px solid #C6C6C6;
 }
 </style>

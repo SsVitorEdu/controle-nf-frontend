@@ -70,17 +70,17 @@
       <cv-grid class="button-grid">
         <cv-row>
           <cv-column :lg="3">
-            <cv-button class="btn-full-width" kind="primary" @click="salvar">
+            <cv-button class="btn-full-width" kind="tertiary" @click="salvar">
               Inserir <Add class="btn-icon" />
             </cv-button>
           </cv-column>
           <cv-column :lg="3">
-            <cv-button class="btn-full-width" kind="primary" @click="limpar">
+            <cv-button class="btn-full-width" kind="tertiary" @click="limpar">
               Limpar <Clean class="btn-icon" /> </cv-button>
           </cv-column>
           <cv-column :lg="3">
-             <cv-button class="btn-full-width" kind="ghost" @click="deletar">
-              Deletar <TrashCan class="btn-icon" />
+             <cv-button class="btn-full-width deletar" kind="ghost" @click="deletar" disabled>
+              Deletar <TrashCan class="btn-icon alterar" />
             </cv-button>
           </cv-column>
           <cv-column :lg="3">
@@ -92,8 +92,8 @@
       </cv-grid>
 
       <div class="table-container">
-        <h2>Processos</h2>
-        <p>Nesta tabela estão todos os processos cadastrados</p>
+        <h2 class="titulo">Processos</h2>
+        <p class="frase">Nesta tabela estão todos os processos cadastrados</p>
         
         <cv-data-table
           :columns="colunasTabela"
@@ -122,11 +122,11 @@
 import ProcessoService from '@/services/ProcessoService';
 import SecretariaService from '@/services/SecretariaService';
 import FornecedorService from '@/services/FornecedorService';
-import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32'; 
-import TrashCan from '@carbon/icons-vue/es/trash-can/32';
-import Edit from '@carbon/icons-vue/es/edit/32';
-import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
+import Add from '@carbon/icons-vue/es/add/20';
+import Clean from '@carbon/icons-vue/es/clean/20';
+import TrashCan from '@carbon/icons-vue/es/trash-can/20';
+import Edit from '@carbon/icons-vue/es/edit/20';
+import ArrowLeft from '@carbon/icons-vue/es/arrow--left/16';
 
 import {
   CvGrid,
@@ -176,13 +176,11 @@ export default {
       processoModel: getInitialProcessoModel(),
       processos: [],
       colunasTabela: [
-        { key: 'protocolo', label: 'Protocolo' },
+        { key: 'protocolo', label: 'Id Protocolo' },
         { key: 'numeroOficio', label: 'Número do ofício' },
         { key: 'numeroProcesso', label: 'Número do processo' },
         { key: 'data', label: 'Data' },
         { key: 'tipo', label: 'Tipo' },
-        { key: 'secretaria', label: 'Secretaria' },
-        { key: 'descricao', label: 'Descrição' },
         { key: 'fornecedor', label: 'Fornecedor' },
       ],
       secretarias: [],
@@ -192,20 +190,37 @@ export default {
     };
   },
   methods: {
+    // Em methods:
     async buscarProcessos() {
       try {
         const response = await ProcessoService.buscarTodos();
-        this.processos = response.data.map(proc => ({
-          ...proc, 
-          protocolo: proc.idProtocolo,
-          numeroOficio: proc.numeroOficio,
-          numeroProcesso: proc.numeroProcesso,
-          data: proc.dataSaidaCompras,
-          tipo: proc.tipoProcesso,
-          secretaria: 'N/A', 
-          descricao: 'N/A', 
-          fornecedor: proc.idFornecedor 
-        }));
+        const processosApi = response.data; // Array de objetos 'proc'
+
+        // 1. Criar o mapa de Fornecedores (ID -> Nome da Empresa)
+        // Isso agora funciona, pois o created() foi corrigido
+        const mapaFornecedores = this.fornecedores.reduce((acc, forn) => {
+          acc[forn.idFornecedor] = forn.nomeEmpresa;
+          return acc;
+        }, {});
+
+        // 2. Mapear os processos para a tabela
+        this.processos = processosApi.map(proc => {
+          const idForn = proc.idFornecedor;
+
+          return {
+
+            protocolo: proc.idProtocolo,
+            numeroOficio: proc.numeroOficio,
+            numeroProcesso: proc.numeroProcesso,
+            data: proc.dataSaidaCompras,
+            tipo: proc.tipoProcesso,
+
+
+            fornecedor: mapaFornecedores[idForn] || `ID ${idForn} (não encontrado)`,
+
+          };
+        });
+
         this.totalDeItens = this.processos.length;
       } catch (error) {
         console.error('Erro ao buscar processos:', error);
@@ -328,10 +343,12 @@ export default {
       console.log('Paginação alterada:', event);
     }
   },
-  created() {
-    this.buscarProcessos();
-    this.buscarSecretarias();
-    this.buscarFornecedores();
+  async created() {
+    await this.buscarSecretarias();
+    await this.buscarFornecedores();
+
+
+    await this.buscarProcessos();
   }
 };
 </script>
@@ -403,5 +420,41 @@ cv-pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+.titulo, .frase{
+  background-color: #F4F4F4;
+  margin-bottom: 0;
+}
+
+.titulo {
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 28px
+}
+
+.frase {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 128.571% */
+  letter-spacing: 0.16px;
+}
+
+button{
+  padding: 10px;
+}
+
+.deletar:enabled .alterar:enabled{
+  border: 1px solid #0f62fe;
+}
+
+.btn-full-width:hover .btn-icon-tertiary {
+  fill: #FFFFFF;
+}
+
+.btn-full-width:disabled{
+  border: 1px solid #C6C6C6;
 }
 </style>

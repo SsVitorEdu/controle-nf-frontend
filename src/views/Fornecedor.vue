@@ -1,7 +1,7 @@
 <template>
   <div class="page-container-blue">
     <div class="content-box">
-      
+
       <div class="header-container">
         <h1 class="page-title">Cadastro de Fornecedor</h1>
         <router-link to="/home" class="back-link">
@@ -13,7 +13,7 @@
 
       <cv-grid class="bx--no-gutter" full-width>
         <cv-row>
-          <cv-column :lg="4">
+          <cv-column :lg="3">
             <cv-text-input label="CNPJ" v-model.trim="fornecedorModel.cnpj" placeholder="Digite o CNPJ da empresa" />
           </cv-column>
           <cv-column :lg="3">
@@ -34,8 +34,8 @@
           </cv-column>
           <cv-column :lg="3">
             <cv-button class="btn-full-width" kind="tertiary" @click="limpar">
-             Limpar <Clean class="btn-icon-tertiary" />
-           </cv-button>
+              Limpar <Clean class="btn-icon-tertiary" />
+            </cv-button>
           </cv-column>
           <cv-column :lg="4">
             <cv-button class="btn-full-width deletar" kind="ghost" disabled>
@@ -48,21 +48,21 @@
       <div class="table-container">
         <h2 class="textoFornecedores">Fornecedores</h2>
         <p class="descricao">Nesta tabela estão todos os fornecedores cadastrados</p>
-        
+
         <cv-data-table
-          :columns="colunasTabela"
-          :data="fornecedores"
-          @row-click="handleRowClick" 
+            :columns="colunasTabela"
+            :data="fornecedores"
+            @row-click="handleRowClick"
         >
         </cv-data-table>
-        
+
         <cv-pagination
-          :number-of-items="totalDeItens"
-          :page-size-options="[100]"
-          :page-sizes="[100]"
-          :value="1"
-          v-model:page-size="tamanhoPagina"
-          @change="handlePageChange"
+            :number-of-items="totalDeItens"
+            :page-size-options="[100]"
+            :page-sizes="[100]"
+            :value="1"
+            v-model:page-size="tamanhoPagina"
+            @change="handlePageChange"
         >
         </cv-pagination>
       </div>
@@ -72,13 +72,14 @@
 </template>
 
 <script>
+// Importando os Serviços
 import FornecedorService from '@/services/FornecedorService';
 
 // Importando Ícones
-import Add from '@carbon/icons-vue/es/add/32';
-import Clean from '@carbon/icons-vue/es/clean/32';
-import TrashCan from '@carbon/icons-vue/es/trash-can/32';
-import ArrowLeft from '@carbon/icons-vue/es/arrow--left/32';
+import Add from '@carbon/icons-vue/es/add/16';
+import Clean from '@carbon/icons-vue/es/clean/16';
+import TrashCan from '@carbon/icons-vue/es/trash-can/16';
+import ArrowLeft from '@carbon/icons-vue/es/arrow--left/20';
 
 // Importando TODOS os componentes Carbon que usamos
 import {
@@ -95,23 +96,29 @@ import {
 const getInitialFornecedorModel = () => ({
   id: '',
   cnpj: '',
-  nome: ''
+  nomeEmpresa: ''
 });
 
 
 
 export default {
   name: 'FornecedorView',
+  // Registrando TODOS os componentes
   components: {
     Add, Clean, TrashCan, ArrowLeft,
-    CvGrid, CvRow, CvColumn, CvTextInput,
-    CvButton, CvDataTable, CvPagination, CvLink
+    CvGrid,
+    CvRow,
+    CvColumn,
+    CvTextInput,
+    CvButton,
+    CvDataTable,
+    CvPagination,
+    CvLink
   },
   data() {
     return {
       fornecedorModel: getInitialFornecedorModel(),
       fornecedores: [],
-
       colunasTabela: [
         { key: 'idFornecedor', label: 'ID' },
         { key: 'cnpj', label: 'CNPJ' },
@@ -135,7 +142,7 @@ export default {
     }
   },
   methods: {
-    // Métodos para buscar dados do backend
+
     async buscarFornecedores() {
       try {
         const response = await FornecedorService.buscarTodos();
@@ -152,7 +159,7 @@ export default {
         const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjLimpo}`);
 
         if(!response.ok) throw new Error('CNPJ inválido ou erro na API');
-          const dados = await response.json();
+        const dados = await response.json();
 
         this.fornecedorModel.nomeEmpresa = dados.razao_social;
 
@@ -162,17 +169,15 @@ export default {
         this.carregandoCNPJ = false;
       }
     },
-    
+
+    // Ações dos Botões
     async salvar() {
-      if (!this.fornecedorModel.nome || !this.fornecedorModel.cnpj) {
-        alert('Por favor, preencha o CNPJ e o Nome da empresa.');
-        return;
-      }
       try {
         const dadosParaEnviar = {
-           nomeEmpresa: this.fornecedorModel.nomeEmpresa,
-           cnpj: this.fornecedorModel.cnpj,
+          nomeEmpresa: this.fornecedorModel.nomeEmpresa,
+          cnpj: this.fornecedorModel.cnpj,
         };
+
         await FornecedorService.inserir(dadosParaEnviar);
         this.limpar();
         this.buscarFornecedores();
@@ -184,37 +189,23 @@ export default {
       this.fornecedorModel = getInitialFornecedorModel();
     },
     async deletar() {
-      if (!this.fornecedorModel.id) {
-        alert('Por favor, clique em um fornecedor na tabela para deletar.');
-        return;
-      }
-
-      try {
-        await FornecedorService.deletar(this.fornecedorModel.id);
-        this.limpar();
-        this.buscarFornecedores();
-
-      } catch(error) {
-        console.error("Erro ao deletar fornecedor:", error);
-      }
+      // (Lógica para o futuro, já que o botão está desabilitado)
     },
 
-
+    // Ações da Tabela
     handleRowClick(event) {
       const linhaData = event.detail.row;
-      console.log("Linha clicada:", linhaData);
-      
-      // CORRIGIDO: de 'linhaData.nome' para 'linhaData.nomeEmpresa'
       this.fornecedorModel = {
         id: linhaData.idFornecedor,
         cnpj: linhaData.cnpj,
-        nome: linhaData.nomeEmpresa
+        nomeEmpresa: linhaData.nomeEmpresa
       };
     },
     handlePageChange(event) {
       console.log('Paginação alterada:', event);
     }
   },
+  // 'created' é chamado quando o componente é carregado
   created() {
     this.buscarFornecedores();
   }
@@ -225,7 +216,7 @@ export default {
 </script>
 
 <style scoped>
-/* ... (seus estilos permanecem os mesmos) ... */
+
 .page-container-blue {
   display: flex;
   justify-content: center;
@@ -273,11 +264,9 @@ cv-text-input{
   border: 1px solid #C6C6C6;
 }
 
-.deletar:enabled{
+.deletar:enabled .alterar:enabled{
   border: 1px solid #0f62fe;
 }
-
-
 
 .btn-full-width:hover .btn-icon-tertiary {
   fill: #FFFFFF;
@@ -299,6 +288,7 @@ cv-grid{
   fill: #0f62fe;
 }
 
+/* Espaçamento entre as linhas da grid */
 cv-row {
   margin-bottom: 0;
 }
@@ -318,10 +308,10 @@ cv-row {
   margin-left: 0;
 }
 
-/* Estilo para ícones em botões tertiary (azuis) */
+
 .btn-icon-tertiary {
-  margin-left: 0.5rem;
-  fill: #0f62fe; /* Azul IBM Carbon */
+  margin-left: 0;
+  fill: #0f62fe;
 }
 
 .table-container {
@@ -352,5 +342,9 @@ cv-pagination {
   font-weight: 400;
   line-height: 18px; /* 128.571% */
   letter-spacing: 0.16px;
+}
+
+button{
+  padding: 10px;
 }
 </style>
